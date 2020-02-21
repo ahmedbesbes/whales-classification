@@ -40,6 +40,8 @@ parser.add_argument('--num-workers', type=int, default=8)
 
 parser.add_argument('--logging-step', type=int, default=25)
 parser.add_argument('--output', type=str, default='./models/')
+parser.add_argument('--submissions', type=str, default='./submissions/')
+
 
 args = parser.parse_args()
 l2_dist = PairwiseDistance(2)
