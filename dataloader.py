@@ -20,13 +20,11 @@ class WhalesDataset(Dataset):
         triplets = []
 
         for _ in tqdm(range(self.num_triplets), leave=False):
-            random_pos_class = (self.stats_classes[(self.stats_classes['num'] > 1) &
-                                                   (self.stats_classes['class'] != -1)]['class']
+            random_pos_class = (self.stats_classes[self.stats_classes['num'] > 1]['class']
                                 .sample(1)
                                 .values[0])
 
-            random_neg_class = (self.stats_classes[(self.stats_classes['class'] != random_pos_class) &
-                                                   (self.stats_classes['class'] != -1)]['class']
+            random_neg_class = (self.stats_classes[self.stats_classes['class'] != random_pos_class]['class']
                                 .sample(1)
                                 .values[0])
 
