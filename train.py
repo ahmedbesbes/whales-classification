@@ -182,7 +182,7 @@ def compute_predictions(model):
 
     test_embeddings = np.concatenate(test_embeddings)
 
-    quantizer = faiss.IndexFlatL2(args.embedding_size)
+    quantizer = faiss.IndexFlatL2(args.embedding_dim)
     faiss_index = faiss.IndexIVFFlat(
         quantizer, args.embedding_size, 50, faiss.METRIC_INNER_PRODUCT)
     faiss_index.train(embeddings)
