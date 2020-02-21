@@ -1,5 +1,6 @@
 
 import os
+import numpy as np
 from tqdm import tqdm
 from skimage import io
 from torch.utils.data import DataLoader, Dataset
@@ -11,10 +12,10 @@ class WhalesDataset(Dataset):
 
         self.num_triplets = num_triplets
         self.classes = os.listdir('../data/train/')
-        self.training_triplets = self.create_triplets()
-        self.transform = transform
         self.stats_classes = stats_classes
         self.mapping_class_to_images = mapping_class_to_images
+        self.training_triplets = self.create_triplets()
+        self.transform = transform
 
     def create_triplets(self):
         triplets = []
