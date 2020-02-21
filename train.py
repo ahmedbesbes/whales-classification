@@ -149,7 +149,7 @@ def compute_predictions(model):
     print("generating predictions ...")
     db = []
     train_folder = os.path.join(args.root, 'train')
-    for c in os.listdir():
+    for c in os.listdir(train_folder):
         for f in os.listdir(os.path.join(train_folder, c)):
             db.append(os.path.join(train_folder, c, f))
 
