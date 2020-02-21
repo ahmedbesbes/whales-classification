@@ -103,6 +103,8 @@ def main():
         }
         train(**params)
 
+    compute_predictions(model)
+
 
 def train(model, dataloader, optimizer, logging_step, epoch, epochs, current_lr):
     losses = []
@@ -144,7 +146,6 @@ def train(model, dataloader, optimizer, logging_step, epoch, epochs, current_lr)
     avg_loss = np.mean(losses)
     torch.save({'loss': avg_loss, 'state_dict': model.state_dict()},
                os.path.join(args.output, 'triplet_loss_baseline.pth'))
-    compute_predictions(model)
 
 
 def compute_predictions(model):
