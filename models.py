@@ -1,4 +1,5 @@
 import torch.nn as nn
+from torchvision.models import resnet34
 
 
 class FaceNetModel(nn.Module):
