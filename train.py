@@ -17,8 +17,10 @@ from torch.autograd import Function
 from torch.nn.modules.distance import PairwiseDistance
 from torch.optim.lr_scheduler import StepLR, MultiStepLR
 
+import faiss
+
 from models import FaceNetModel
-from dataloader import WhalesDataset, data_transform
+from dataloader import WhalesDataset, ScoringDataset, data_transform
 from utils import get_lr
 from losses import TripletLoss
 
@@ -28,17 +30,16 @@ parser.add_argument(
 
 parser.add_argument('--embedding-dim', type=int, default=128)
 parser.add_argument('--pretrained', type=int, choices=[0, 1], default=1)
-parser.add_argument('--learning-rate', type=float, default=3e-4)
+parser.add_argument('--margin', type=float, default=0.2)
+parser.add_argument('--num-triplets', type=int, default=10000)
 
+parser.add_argument('--learning-rate', type=float, default=3e-4)
 parser.add_argument('--epochs', type=int, default=30)
 parser.add_argument('--batch-size', type=int, default=32)
-
-parser.add_argument('--margin', type=float, default=0.2)
-parser.add_argument('--logging-step', type=int, default=25)
-
-parser.add_argument('--num-triplets', type=int, default=10000)
 parser.add_argument('--num-workers', type=int, default=8)
 
+parser.add_argument('--logging-step', type=int, default=25)
+parser.add_argument('--output', type=str, default='./models/')
 
 args = parser.parse_args()
 l2_dist = PairwiseDistance(2)
@@ -53,7 +54,7 @@ def main():
 
     mapping_image_id = {}
     mapping_class_to_images = {}
-    for c in tqdm(os.listdir(os.path.join(args.root, 'train'))):
+    for c in os.listdir(os.path.join(args.root, 'train')):
         mapping_class_to_images[c] = os.listdir(
             os.path.join(args.root, 'train', c))
         for img in os.listdir(
@@ -138,6 +139,61 @@ def train(model, dataloader, optimizer, logging_step, epoch, epochs, current_lr)
                 avg_running_loss = np.mean(losses)
                 print(
                     f'[{epoch + 1} / {epochs}][{i} / {len(dataloader)}][lr: {current_lr}] loss = {avg_running_loss}')
+    avg_loss = np.mean(losses)
+    torch.save({'loss': avg_loss, 'state_dict': model.state_dict()}, args.output)
+    compute_predictions(model)
+
+
+def compute_predictions(model):
+    print("generating predictions ...")
+    db = []
+    train_folder = os.path.join(args.root, 'train')
+    for c in os.listdir():
+        for f in os.listdir(os.path.join(train_folder, c)):
+            db.append(os.path.join(train_folder, c, f))
+
+    db += [os.path.join(args.root, 'test_val', f)
+           for f in os.listdir(os.path.join(args.root, 'test_val'))]
+    test_db = sorted(
+        [os.path.join(args.root, 'test_val', f) for f in os.listdir(os.path.join(args.root, 'test_val'))])
+
+    scoring_dataset = ScoringDataset(db, data_transform)
+    scoring_dataloader = DataLoader(
+        scoring_dataset, shuffle=False, num_workers=10)
+
+    embeddings = []
+    for images in tqdm(scoring_dataloader, total=len(scoring_dataloader)):
+        with torch.no_grad():
+            embedding = model(images.cuda())
+            embedding = embedding.cpu().detach().numpy()
+            embeddings.append(embedding)
+    embeddings = np.concatenate(embeddings)
+
+    test_dataset = ScoringDataset(test_db, data_transform)
+    test_dataloader = DataLoader(test_dataset, shuffle=False)
+
+    test_embeddings = []
+    for images in tqdm(test_dataloader, total=len(test_dataloader)):
+        with torch.no_grad():
+            embedding = model(images.cuda())
+            embedding = embedding.cpu().detach().numpy()
+            test_embeddings.append(embedding)
+
+    test_embeddings = np.concatenate(test_embeddings)
+
+    quantizer = faiss.IndexFlatL2(args.embedding_size)
+    faiss_index = faiss.IndexIVFFlat(
+        quantizer, args.embedding_size, 50, faiss.METRIC_INNER_PRODUCT)
+    faiss_index.train(embeddings)
+    faiss_index.add(embeddings)
+    D, I = faiss_index.search(test_embeddings, 21)
+    submission = pd.DataFrame(I)
+    for c in submission.columns:
+        submission[c] = submission[c].map(lambda v: db[v].split('/')[-1])
+
+    submission.to_csv(os.path.join(
+        args.submissions, 'triplet_loss_baseline.csv'), header=None, sep=',', index=False)
+    print("predictions generated...")
 
 
 if __name__ == "__main__":

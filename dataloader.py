@@ -64,6 +64,21 @@ class WhalesDataset(Dataset):
         return sample
 
 
+class ScoringDataset(Dataset):
+    def __init__(self, db, transform):
+        self.db = db
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.db)
+
+    def __getitem__(self, i):
+        path = self.db[i]
+        image = io.imread(path)
+        image = self.transform(image)
+        return image
+
+
 data_transform = transforms.Compose([
     transforms.ToPILImage(),
     transforms.Resize((200, 200)),
