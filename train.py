@@ -41,12 +41,11 @@ parser.add_argument('--num-workers', type=int, default=8)
 
 
 args = parser.parse_args()
+l2_dist = PairwiseDistance(2)
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 
 def main():
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-
-    data = pd.read_csv(os.path.join(args.root, 'train'), sep=';', header=None)
     mapping_class_id = {}
 
     for i, c in enumerate(os.listdir(os.path.join(args.root, 'train'))):
@@ -68,7 +67,6 @@ def main():
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-    l2_dist = PairwiseDistance(2)
     model = FaceNetModel(args.embedding_dim,
                          num_classes=len(mapping_class_to_images),
                          pretrained=bool(args.pretrained))
@@ -103,7 +101,7 @@ def main():
         train(**params)
 
 
-def train(model, dataloader, device, optimizer, logging_step, epoch, epochs, current_lr):
+def train(model, dataloader, optimizer, logging_step, epoch, epochs, current_lr):
     losses = []
     for i, batch_sample in tqdm(enumerate(dataloader), total=len(dataloader), leave=False):
         anc_img = batch_sample['anc_img'].to(device)
@@ -140,3 +138,7 @@ def train(model, dataloader, device, optimizer, logging_step, epoch, epochs, cur
                 avg_running_loss = np.mean(losses)
                 print(
                     f'[{epoch + 1} / {epochs}][{i} / {len(dataloader)}][lr: {current_lr}] loss = {avg_running_loss}')
+
+
+if __name__ == "__main__":
+    main()
