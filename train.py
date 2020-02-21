@@ -116,7 +116,7 @@ def train(model, dataloader, optimizer, logging_step, epoch, epochs, current_lr)
             pos_dist = l2_dist.forward(anc_embed, pos_embed)
             neg_dist = l2_dist.forward(anc_embed, neg_embed)
 
-            all = (neg_dist - pos_dist < margin).cpu().numpy().flatten()
+            all = (neg_dist - pos_dist < args.margin).cpu().numpy().flatten()
             hard_triplets = np.where(all == 1)
             if len(hard_triplets[0]) == 0:
                 continue
