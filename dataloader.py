@@ -82,14 +82,14 @@ def data_transform(img):
 
     transform = transforms.Compose([
         transforms.ToPILImage(),
-        transforms.Pad(x),
+        transforms.Pad(pad),
         transforms.Resize((200, 200)),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.5, 0.5, 0.5],
                              std=[0.5, 0.5, 0.5])
     ])
-    return transforms(img)
+    return transform(img)
 
 
 def data_transform_test(img):
@@ -97,9 +97,10 @@ def data_transform_test(img):
 
     transform = transforms.Compose([
         transforms.ToPILImage(),
+        transforms.Pad(pad),
         transforms.Resize((200, 200)),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.5, 0.5, 0.5],
                              std=[0.5, 0.5, 0.5])
     ])
-    return transforms(img)
+    return transform(img)
