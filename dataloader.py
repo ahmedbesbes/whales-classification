@@ -77,20 +77,29 @@ class ScoringDataset(Dataset):
         return image
 
 
-data_transform = transforms.Compose([
-    transforms.ToPILImage(),
-    transforms.Resize((200, 200)),
-    transforms.RandomHorizontalFlip(),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                         std=[0.5, 0.5, 0.5])
-])
+def data_transform(img):
+    pad = abs((img.shape[0] - img.shape[1])) // 2
+
+    transform = transforms.Compose([
+        transforms.ToPILImage(),
+        transforms.Pad(x),
+        transforms.Resize((200, 200)),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                             std=[0.5, 0.5, 0.5])
+    ])
+    return transforms(img)
 
 
-data_transform_test = transforms.Compose([
-    transforms.ToPILImage(),
-    transforms.Resize((200, 200)),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                         std=[0.5, 0.5, 0.5])
-])
+def data_transform_test(img):
+    pad = abs((img.shape[0] - img.shape[1])) // 2
+
+    transform = transforms.Compose([
+        transforms.ToPILImage(),
+        transforms.Resize((200, 200)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                             std=[0.5, 0.5, 0.5])
+    ])
+    return transforms(img)
