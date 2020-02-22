@@ -85,3 +85,12 @@ data_transform = transforms.Compose([
     transforms.Normalize(mean=[0.5, 0.5, 0.5],
                          std=[0.5, 0.5, 0.5])
 ])
+
+
+data_transform_test = transforms.Compose([
+    transforms.ToPILImage(),
+    transforms.Resize((200, 200)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                         std=[0.5, 0.5, 0.5])
+])

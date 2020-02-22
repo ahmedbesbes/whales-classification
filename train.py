@@ -20,7 +20,7 @@ from torch.optim.lr_scheduler import StepLR, MultiStepLR
 import faiss
 
 from models import FaceNetModel
-from dataloader import WhalesDataset, ScoringDataset, data_transform
+from dataloader import WhalesDataset, ScoringDataset, data_transform, data_transform_test
 from utils import get_lr
 from losses import TripletLoss
 
@@ -161,7 +161,7 @@ def compute_predictions(model):
     test_db = sorted(
         [os.path.join(args.root, 'test_val', f) for f in os.listdir(os.path.join(args.root, 'test_val'))])
 
-    scoring_dataset = ScoringDataset(db, data_transform)
+    scoring_dataset = ScoringDataset(db, data_transform_test)
     scoring_dataloader = DataLoader(
         scoring_dataset, shuffle=False, num_workers=10)
 
@@ -173,7 +173,7 @@ def compute_predictions(model):
             embeddings.append(embedding)
     embeddings = np.concatenate(embeddings)
 
-    test_dataset = ScoringDataset(test_db, data_transform)
+    test_dataset = ScoringDataset(test_db, data_transform_test)
     test_dataloader = DataLoader(test_dataset, shuffle=False)
 
     test_embeddings = []
