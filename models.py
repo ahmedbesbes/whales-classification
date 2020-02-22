@@ -9,7 +9,7 @@ class FaceNetModel(nn.Module):
 
         self.model = resnet34(pretrained)
         self.embedding_size = embedding_size
-        self.output_conv = self._get_output_conv((1, 3, 200, 200))
+        self.output_conv = self._get_output_conv((1, 3, 224, 224))
         self.model.fc = nn.Linear(self.output_conv, self.embedding_size)
         self.model.classifier = nn.Linear(self.embedding_size, num_classes)
 

@@ -79,11 +79,16 @@ class ScoringDataset(Dataset):
 
 def data_transform(img):
     pad = abs((img.shape[0] - img.shape[1])) // 2
+    min_length = np.argmin(img.shape[:2])
+    if min_length == 0:
+        pad = (0, pad)
+    else:
+        pad = (pad, 0)
 
     transform = transforms.Compose([
         transforms.ToPILImage(),
         transforms.Pad(pad),
-        transforms.Resize((200, 200)),
+        transforms.Resize((224, 224)),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.5, 0.5, 0.5],
@@ -94,11 +99,16 @@ def data_transform(img):
 
 def data_transform_test(img):
     pad = abs((img.shape[0] - img.shape[1])) // 2
+    min_length = np.argmin(img.shape[:2])
+    if min_length == 0:
+        pad = (0, pad)
+    else:
+        pad = (pad, 0)
 
     transform = transforms.Compose([
         transforms.ToPILImage(),
         transforms.Pad(pad),
-        transforms.Resize((200, 200)),
+        transforms.Resize((224, 224)),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.5, 0.5, 0.5],
                              std=[0.5, 0.5, 0.5])
