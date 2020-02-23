@@ -42,6 +42,7 @@ parser.add_argument('--logging-step', type=int, default=25)
 parser.add_argument('--output', type=str, default='./models/')
 parser.add_argument('--submissions', type=str, default='./submissions/')
 
+torch.manual_seed(0)
 
 args = parser.parse_args()
 l2_dist = PairwiseDistance(2)
