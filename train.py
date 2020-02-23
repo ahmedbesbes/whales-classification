@@ -29,6 +29,8 @@ from losses import TripletLoss
 parser = argparse.ArgumentParser()
 parser.add_argument(
     '--root', default='/data_science/computer_vision/whales/data/train_resized/', type=str)
+parser.add_argument(
+    '--root-test', default='/data_science/computer_vision/whales/data/test_val/', type=str)
 
 parser.add_argument('--archi', default='resnet34',
                     choices=['resnet34', 'inception'], type=str)
@@ -169,15 +171,14 @@ def train(model, dataloader, optimizer, logging_step, epoch, epochs, current_lr)
 def compute_predictions(model):
     print("generating predictions ...")
     db = []
-    train_folder = os.path.join(args.root, 'train')
+    train_folder = os.path.join(args.root)
     for c in os.listdir(train_folder):
         for f in os.listdir(os.path.join(train_folder, c)):
             db.append(os.path.join(train_folder, c, f))
 
-    db += [os.path.join(args.root, 'test_val', f)
-           for f in os.listdir(os.path.join(args.root, 'test_val'))]
+    db += [os.path.join(args.root_test, f) for f in os.listdir(args.root_test)]
     test_db = sorted(
-        [os.path.join(args.root, 'test_val', f) for f in os.listdir(os.path.join(args.root, 'test_val'))])
+        [os.path.join(args.root_test, f) for f in os.listdir(args.root_test)])
 
     scoring_dataset = ScoringDataset(db, data_transform_test)
     scoring_dataloader = DataLoader(
