@@ -86,8 +86,9 @@ def main():
     model.to(device)
 
     optimizer = Adam(model.parameters(), lr=args.learning_rate)
-    scheduler = MultiStepLR(optimizer, milestones=[
-                            10, 15, 20, 25, 30], gamma=0.2)
+    scheduler = MultiStepLR(optimizer,
+                            milestones=[5, 10, 15, 20, 25, 30],
+                            gamma=0.2)
 
     for epoch in tqdm(range(args.epochs)):
         scheduler.step()
