@@ -42,6 +42,7 @@ parser.add_argument('--logging-step', type=int, default=25)
 parser.add_argument('--output', type=str, default='./models/')
 parser.add_argument('--submissions', type=str, default='./submissions/')
 
+np.random.seed(0)
 torch.manual_seed(0)
 
 args = parser.parse_args()
