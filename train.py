@@ -40,6 +40,8 @@ parser.add_argument('--learning-rate', type=float, default=3e-4)
 parser.add_argument('--epochs', type=int, default=30)
 parser.add_argument('--batch-size', type=int, default=32)
 parser.add_argument('--num-workers', type=int, default=8)
+parser.add_argument('--step-size', type=float, default=5)
+parser.add_argument('--gamma', type=float, default=0.1)
 
 parser.add_argument('--logging-step', type=int, default=25)
 parser.add_argument('--output', type=str, default='./models/')
@@ -86,9 +88,8 @@ def main():
     model.to(device)
 
     optimizer = Adam(model.parameters(), lr=args.learning_rate)
-    scheduler = MultiStepLR(optimizer,
-                            milestones=[5, 10, 15, 20, 25, 30],
-                            gamma=0.2)
+
+    scheduler = StepLR(optimizer, step_size=args.step_size, gamma=args.gamma)
 
     for epoch in tqdm(range(args.epochs)):
         scheduler.step()

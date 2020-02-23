@@ -78,25 +78,21 @@ class ScoringDataset(Dataset):
         return image
 
 
-def data_transform(img):
-    transform = transforms.Compose([
-        transforms.Lambda(lambda img: expand2square(img)),
-        transforms.Resize((224, 224)),
-        transforms.RandomRotation(10),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                             std=[0.5, 0.5, 0.5])
-    ])
-    return transform(img)
+data_transform = transforms.Compose([
+    transforms.Lambda(lambda img: expand2square(img)),
+    transforms.Resize((224, 224)),
+    transforms.RandomRotation(10),
+    transforms.RandomHorizontalFlip(),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                         std=[0.5, 0.5, 0.5])
+])
 
 
-def data_transform_test(img):
-    transform = transforms.Compose([
-        transforms.Lambda(lambda img: expand2square(img)),
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                             std=[0.5, 0.5, 0.5])
-    ])
-    return transform(img)
+data_transform_test = transforms.Compose([
+    transforms.Lambda(lambda img: expand2square(img)),
+    transforms.Resize((224, 224)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                         std=[0.5, 0.5, 0.5])
+])
