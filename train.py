@@ -1,5 +1,6 @@
 import os
-import shutil
+import signal
+import sys
 import argparse
 from datetime import datetime
 import numpy as np
@@ -27,7 +28,7 @@ from losses import TripletLoss
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    '--root', default='/data_science/computer_vision/whales/data/', type=str)
+    '--root', default='/data_science/computer_vision/whales/data/train_resized/', type=str)
 
 parser.add_argument('--archi', default='resnet34',
                     choices=['resnet34', 'inception'], type=str)
@@ -56,6 +57,11 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 
 def main():
+    def signal_handler(sig, frame):
+        print('You just pressed Ctrl C. Let\'s back up things... ')
+        compute_predictions(model)
+    signal.signal(signal.SIGINT, signal_handler)
+
     mapping_class_id = {}
 
     for i, c in enumerate(os.listdir(os.path.join(args.root, 'train'))):

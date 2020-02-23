@@ -11,7 +11,8 @@ class WhalesDataset(Dataset):
     def __init__(self, num_triplets, transform, root, stats_classes, mapping_class_to_images):
 
         self.num_triplets = num_triplets
-        self.classes = os.listdir('../data/train/')
+        self.root = root
+        self.classes = os.listdir(self.root)
         self.stats_classes = stats_classes
         self.mapping_class_to_images = mapping_class_to_images
         self.training_triplets = self.create_triplets()
@@ -34,9 +35,9 @@ class WhalesDataset(Dataset):
             neg_file = np.random.choice(
                 self.mapping_class_to_images[random_neg_class])
 
-            anc_file = f'../data/train/{random_pos_class}/{anc_file}'
-            pos_file = f'../data/train/{random_pos_class}/{pos_file}'
-            neg_file = f'../data/train/{random_neg_class}/{neg_file}'
+            anc_file = os.path.join(self.root, random_pos_class, anc_file)
+            pos_file = os.path.join(self.root, random_pos_class, pos_file)
+            neg_file = os.path.join(self.root, random_neg_class, neg_file)
 
             triplets.append((anc_file, pos_file, neg_file))
         return triplets
@@ -79,8 +80,8 @@ class ScoringDataset(Dataset):
 
 
 data_transform = transforms.Compose([
-    transforms.Lambda(lambda img: expand2square(img)),
-    transforms.Resize((224, 224)),
+    #transforms.Lambda(lambda img: expand2square(img)),
+    #transforms.Resize((224, 224)),
     transforms.RandomRotation(10),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
@@ -90,8 +91,8 @@ data_transform = transforms.Compose([
 
 
 data_transform_test = transforms.Compose([
-    transforms.Lambda(lambda img: expand2square(img)),
-    transforms.Resize((224, 224)),
+    # transforms.Lambda(lambda img: expand2square(img)),
+    #transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.5, 0.5, 0.5],
                          std=[0.5, 0.5, 0.5])
