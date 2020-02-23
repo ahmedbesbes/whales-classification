@@ -79,7 +79,7 @@ def main():
     stats_classes = pd.DataFrame()
     stats_classes['class'] = os.listdir(args.root)
     stats_classes['num'] = stats_classes['class'].map(lambda c: len(os.listdir(
-        os.path.join(args.root, 'train', c))))
+        os.path.join(args.root, c))))
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
