@@ -64,20 +64,20 @@ def main():
 
     mapping_class_id = {}
 
-    for i, c in enumerate(os.listdir(os.path.join(args.root, 'train'))):
+    for i, c in enumerate(os.listdir(args.root)):
         mapping_class_id[c] = i
 
     mapping_image_id = {}
     mapping_class_to_images = {}
-    for c in os.listdir(os.path.join(args.root, 'train')):
+    for c in os.listdir(args.root):
         mapping_class_to_images[c] = os.listdir(
-            os.path.join(args.root, 'train', c))
+            os.path.join(args.root, c))
         for img in os.listdir(
-                os.path.join(args.root, 'train', c)):
+                os.path.join(args.root, c)):
             mapping_image_id[img] = c
 
     stats_classes = pd.DataFrame()
-    stats_classes['class'] = os.listdir(os.path.join(args.root, 'train'))
+    stats_classes['class'] = os.listdir(args.root)
     stats_classes['num'] = stats_classes['class'].map(lambda c: len(os.listdir(
         os.path.join(args.root, 'train', c))))
 
