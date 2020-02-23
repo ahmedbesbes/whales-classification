@@ -19,7 +19,8 @@ from torch.optim.lr_scheduler import StepLR, MultiStepLR
 
 import faiss
 
-from models import FaceNetModel
+from backbones.Resnet34 import FaceNetModel
+from backbones.InceptionResnet import InceptionResnetV1
 from dataloader import WhalesDataset, ScoringDataset, data_transform, data_transform_test
 from utils import get_lr
 from losses import TripletLoss
@@ -28,6 +29,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument(
     '--root', default='/data_science/computer_vision/whales/data/', type=str)
 
+parser.add_argument('--archi', default='resnet34',
+                    choices=['resnet34', 'inception'], type=str)
 parser.add_argument('--embedding-dim', type=int, default=128)
 parser.add_argument('--pretrained', type=int, choices=[0, 1], default=1)
 parser.add_argument('--margin', type=float, default=0.2)
@@ -72,9 +75,14 @@ def main():
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-    model = FaceNetModel(args.embedding_dim,
-                         num_classes=len(mapping_class_to_images),
-                         pretrained=bool(args.pretrained))
+    if args.archi == 'resnet34':
+        model = FaceNetModel(args.embedding_dim,
+                             num_classes=len(mapping_class_to_images),
+                             pretrained=bool(args.pretrained))
+    elif args.archi == 'inception':
+        model = InceptionResnetV1(num_classes=len(mapping_class_to_images),
+                                  embedding_dim=args.embedding_dim)
+
     model.to(device)
 
     optimizer = Adam(model.parameters(), lr=args.learning_rate)
