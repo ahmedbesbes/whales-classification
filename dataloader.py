@@ -1,9 +1,10 @@
 import os
 import numpy as np
 from tqdm import tqdm
-from skimage import io
+from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
+from utils import expand2square
 
 
 class WhalesDataset(Dataset):
@@ -46,9 +47,9 @@ class WhalesDataset(Dataset):
     def __getitem__(self, i):
         triplet = self.training_triplets[i]
 
-        anc_img = io.imread(triplet[0])
-        pos_img = io.imread(triplet[1])
-        neg_img = io.imread(triplet[2])
+        anc_img = Image.open(triplet[0])
+        pos_img = Image.open(triplet[1])
+        neg_img = Image.open(triplet[2])
 
         anc_img = self.transform(anc_img)
         pos_img = self.transform(pos_img)
@@ -72,7 +73,7 @@ class ScoringDataset(Dataset):
 
     def __getitem__(self, i):
         path = self.db[i]
-        image = io.imread(path)
+        image = Image.open(path)
         image = self.transform(image)
         return image
 
@@ -86,8 +87,7 @@ def data_transform(img):
         pad = (pad, 0)
 
     transform = transforms.Compose([
-        transforms.ToPILImage(),
-        transforms.Pad(pad),
+        transforms.Lambda(lambda img: expand2square(img)),
         transforms.Resize((224, 224)),
         transforms.RandomRotation(10),
         transforms.RandomHorizontalFlip(),
@@ -107,8 +107,7 @@ def data_transform_test(img):
         pad = (pad, 0)
 
     transform = transforms.Compose([
-        transforms.ToPILImage(),
-        transforms.Pad(pad),
+        transforms.Lambda(lambda img: expand2square(img)),
         transforms.Resize((224, 224)),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.5, 0.5, 0.5],
