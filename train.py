@@ -63,7 +63,7 @@ def main():
     def signal_handler(sig, frame):
         print('You just pressed Ctrl C. Let\'s back up things... ')
         compute_predictions(model)
-    signal.signal(signal.SIGINT, signal_handler)
+    #signal.signal(signal.SIGINT, signal_handler)
 
     mapping_class_id = {}
 
