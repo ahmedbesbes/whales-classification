@@ -69,7 +69,7 @@ class WhalesDataset(Dataset):
             'pos_img': pos_img,
             'neg_img': neg_img,
             'pos_class': pos_class,
-            'neg_class': neg_classs
+            'neg_class': neg_class
         }
         return sample
 
