@@ -1,5 +1,4 @@
 import os
-import signal
 import sys
 import argparse
 from datetime import datetime
@@ -23,7 +22,7 @@ import faiss
 from backbones.Resnet34 import FaceNetModel
 from backbones.InceptionResnet import InceptionResnetV1
 from dataloader import WhalesDataset, ScoringDataset, data_transform, data_transform_test
-from utils import get_lr
+from utils import get_lr, log_experience
 from losses import TripletLoss
 
 parser = argparse.ArgumentParser()
@@ -52,6 +51,8 @@ parser.add_argument('--classif', type=str,
 parser.add_argument('--logging-step', type=int, default=25)
 parser.add_argument('--output', type=str, default='./models/')
 parser.add_argument('--submissions', type=str, default='./submissions/')
+parser.add_argument('--logs-experiences', type=str,
+                    default='./experiences/logs.csv')
 
 np.random.seed(0)
 torch.manual_seed(0)
@@ -62,10 +63,7 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 
 def main():
-    def signal_handler(sig, frame):
-        print('You just pressed Ctrl C. Let\'s back up things... ')
-        compute_predictions(model)
-    # signal.signal(signal.SIGINT, signal_handler)
+    log_experience(args)
 
     mapping_class_id = {}
 

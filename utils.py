@@ -1,3 +1,7 @@
+import os
+from datetime import datetime
+from pprint import pprint
+import pandas as pd
 from PIL import Image
 
 
@@ -19,3 +23,21 @@ def expand2square(pil_img):
         result = Image.new(pil_img.mode, (height, height), background_color)
         result.paste(pil_img, ((height - width) // 2, 0))
         return result
+
+
+def log_experience(args):
+    arguments = vars(args)
+    arguments['date'] = str(datetime.now())
+    arguments['leaderboard_score'] = None
+
+    print('logging these arguments for the experience ...')
+    pprint(args)
+    print('----')
+
+    if not os.path.exists(args.logs_experiences):
+        logs = pd.DataFrame([arguments])
+        logs.to_csv(args.logs_experiences, index=False)
+    else:
+        logs = pd.read_csv(args.logs_experiences)
+        logs = logs.append([arguments])
+        logs.to_csv(args.logs_experiences, index=False)
