@@ -5,6 +5,11 @@ from models import *  # set ONNX_EXPORT in models.py
 from utils.datasets import *
 from utils.utils import *
 
+try:
+    from tqdm import tqdm_notebook as tqdm
+except:
+    from tqdm import tqdm
+
 
 def detect(source, save_img=False):
     device = ""
@@ -39,7 +44,7 @@ def detect(source, save_img=False):
         load_darknet_weights(model, weights)
 
     # Fuse Conv2d + BatchNorm2d layers
-    # model.fuse()
+    # model.fuse()'
     # torch_utils.model_info(model, report='summary')  # 'full' or 'summary'
 
     # Eval mode
@@ -62,7 +67,7 @@ def detect(source, save_img=False):
     outputs = []
     # Run inference
     t0 = time.time()
-    for path, img, im0s, vid_cap in dataset:
+    for path, img, im0s, vid_cap in tqdm(dataset, total=len(dataset), leave=False):
         t = time.time()
         img = torch.from_numpy(img).to(device)
         img = img.half() if half else img.float()  # uint8 to fp16/32
