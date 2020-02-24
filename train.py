@@ -45,6 +45,7 @@ parser.add_argument('--batch-size', type=int, default=32)
 parser.add_argument('--num-workers', type=int, default=8)
 parser.add_argument('--step-size', type=float, default=5)
 parser.add_argument('--gamma', type=float, default=0.1)
+parser.add_argument('--hard', type=int, choices=[0, 1], default=1)
 
 parser.add_argument('--logging-step', type=int, default=25)
 parser.add_argument('--output', type=str, default='./models/')
@@ -142,17 +143,24 @@ def train(model, dataloader, optimizer, logging_step, epoch, epochs, current_lr)
             pos_dist = l2_dist.forward(anc_embed, pos_embed)
             neg_dist = l2_dist.forward(anc_embed, neg_embed)
 
-            all = (neg_dist - pos_dist < args.margin).cpu().numpy().flatten()
-            hard_triplets = np.where(all == 1)
-            if len(hard_triplets[0]) == 0:
-                continue
+            if bool(args.hard):
+                all = (neg_dist - pos_dist <
+                       args.margin).cpu().numpy().flatten()
+                hard_triplets = np.where(all == 1)
+                if len(hard_triplets[0]) == 0:
+                    continue
 
-            anc_hard_embed = anc_embed[hard_triplets].to(device)
-            pos_hard_embed = pos_embed[hard_triplets].to(device)
-            neg_hard_embed = neg_embed[hard_triplets].to(device)
+                anc_hard_embed = anc_embed[hard_triplets].to(device)
+                pos_hard_embed = pos_embed[hard_triplets].to(device)
+                neg_hard_embed = neg_embed[hard_triplets].to(device)
 
-            triplet_loss = TripletLoss(args.margin).forward(
-                anc_hard_embed, pos_hard_embed, neg_hard_embed).to(device)
+                triplet_loss = TripletLoss(args.margin).forward(anc_hard_embed,
+                                                                pos_hard_embed,
+                                                                neg_hard_embed).to(device)
+            else:
+                triplet_loss = TripletLoss(args.margin).forward(anc_embed,
+                                                                pos_embed,
+                                                                neg_embed).to(device)
 
             optimizer.zero_grad()
             triplet_loss.backward()
