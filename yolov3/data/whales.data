@@ -1,0 +1,5 @@
+classes=1
+train=./data/whales_train.txt
+valid=./data/whales_valid.txt
+names=./data/whales.names
+backup=backup
