@@ -28,7 +28,7 @@ from losses import TripletLoss
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    '--root', default='/data_science/computer_vision/whales/data/train_resized/', type=str)
+    '--root', default='/data_science/computer_vision/whales/data/train/', type=str)
 parser.add_argument(
     '--root-test', default='/data_science/computer_vision/whales/data/test_val/', type=str)
 
