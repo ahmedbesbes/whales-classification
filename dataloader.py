@@ -8,7 +8,7 @@ from utils import expand2square
 
 
 class WhalesDataset(Dataset):
-    def __init__(self, num_triplets, transform, root, stats_classes, mapping_class_to_images):
+    def __init__(self, num_triplets, transform, root, stats_classes, mapping_class_to_images, ids_to_labels):
 
         self.num_triplets = num_triplets
         self.root = root
@@ -17,6 +17,7 @@ class WhalesDataset(Dataset):
         self.mapping_class_to_images = mapping_class_to_images
         self.training_triplets = self.create_triplets()
         self.transform = transform
+        self.ids_to_labels = ids_to_labels
 
     def create_triplets(self):
         triplets = []
@@ -39,7 +40,11 @@ class WhalesDataset(Dataset):
             pos_file = os.path.join(self.root, random_pos_class, pos_file)
             neg_file = os.path.join(self.root, random_neg_class, neg_file)
 
-            triplets.append((anc_file, pos_file, neg_file))
+            triplets.append((anc_file,
+                             pos_file,
+                             neg_file,
+                             random_pos_class,
+                             random_neg_class))
         return triplets
 
     def __len__(self):
@@ -56,10 +61,15 @@ class WhalesDataset(Dataset):
         pos_img = self.transform(pos_img)
         neg_img = self.transform(neg_img)
 
+        pos_class = self.ids_to_labels[triplet[3]]
+        neg_class = self.ids_to_labels[triplet[4]]
+
         sample = {
             'anc_img': anc_img,
             'pos_img': pos_img,
-            'neg_img': neg_img
+            'neg_img': neg_img,
+            'pos_class': pos_class,
+            'neg_class': neg_classs
         }
         return sample
 

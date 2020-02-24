@@ -46,6 +46,8 @@ parser.add_argument('--num-workers', type=int, default=8)
 parser.add_argument('--step-size', type=float, default=5)
 parser.add_argument('--gamma', type=float, default=0.1)
 parser.add_argument('--hard', type=int, choices=[0, 1], default=1)
+parser.add_argument('--classif', type=str,
+                    choices=['binary', 'multi'], default='binary')
 
 parser.add_argument('--logging-step', type=int, default=25)
 parser.add_argument('--output', type=str, default='./models/')
@@ -63,7 +65,7 @@ def main():
     def signal_handler(sig, frame):
         print('You just pressed Ctrl C. Let\'s back up things... ')
         compute_predictions(model)
-    #signal.signal(signal.SIGINT, signal_handler)
+    # signal.signal(signal.SIGINT, signal_handler)
 
     mapping_class_id = {}
 
@@ -87,12 +89,25 @@ def main():
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
+    if args.classif == "binary":
+        num_classes = 2
+        ids_to_labels = {}
+        for c in mapping_class_id.keys():
+            if c != '-1':
+                ids_to_labels[c] = 0
+            else:
+                ids_to_labels[c] = 1
+
+    elif args.classif == "multi":
+        num_classes = len(mapping_class_id)
+        ids_to_labels = mapping_class_id
+
     if args.archi == 'resnet34':
         model = FaceNetModel(args.embedding_dim,
-                             num_classes=len(mapping_class_to_images),
+                             num_classes=num_classes,
                              pretrained=bool(args.pretrained))
     elif args.archi == 'inception':
-        model = InceptionResnetV1(num_classes=len(mapping_class_to_images),
+        model = InceptionResnetV1(num_classes=num_classes,
                                   embedding_dim=args.embedding_dim)
 
     model.to(device)
@@ -109,7 +124,8 @@ def main():
                                 transform=data_transform,
                                 root=args.root,
                                 stats_classes=stats_classes,
-                                mapping_class_to_images=mapping_class_to_images)
+                                mapping_class_to_images=mapping_class_to_images,
+                                ids_to_labels=ids_to_labels)
         dataloader = DataLoader(dataset,
                                 batch_size=args.batch_size,
                                 num_workers=args.num_workers)
@@ -130,12 +146,27 @@ def main():
 
 def train(model, dataloader, optimizer, logging_step, epoch, epochs, current_lr):
     losses = []
+    t_losses = []
+    ce_losses = []
+
     for i, batch_sample in tqdm(enumerate(dataloader), total=len(dataloader), leave=False):
         anc_img = batch_sample['anc_img'].to(device)
         pos_img = batch_sample['pos_img'].to(device)
         neg_img = batch_sample['neg_img'].to(device)
 
         with torch.set_grad_enabled(True):
+            anc_pred = model.forward_classifier(anc_img)
+            pos_pred = model.forward_classifier(pos_img)
+            neg_pred = model.forward_classifier(neg_img)
+
+            pos_targets = batch_sample['pos_class'].to(device)
+            neg_targets = batch_sample['neg_class'].to(device)
+
+            preds = torch.cat([anc_pred, pos_pred, neg_pred], dim=0)
+            targets = torch.cat([pos_targets, pos_targets, neg_targets])
+
+            ce_loss = nn.CrossEntropyLoss()(preds, targets)
+
             anc_embed, pos_embed, neg_embed = model(
                 anc_img), model(pos_img), model(neg_img)
 
@@ -162,16 +193,21 @@ def train(model, dataloader, optimizer, logging_step, epoch, epochs, current_lr)
                                                                 pos_embed,
                                                                 neg_embed).to(device)
 
+            total_loss = ce_loss + triplet_loss
             optimizer.zero_grad()
-            triplet_loss.backward()
+            total_loss.backward()
             optimizer.step()
 
-            losses.append(triplet_loss.item())
+            ce_losses.append(ce_loss.item())
+            t_losses.append(triplet_loss.item())
+            losses.append(total_loss.item())
 
             if i % logging_step == 0:
                 avg_running_loss = np.mean(losses)
-                print(
-                    f'[{epoch + 1} / {epochs}][{i} / {len(dataloader)}][lr: {current_lr}] loss = {avg_running_loss}')
+                avg_running_ce_loss = np.mean(ce_losses)
+                avg_running_t_loss = np.mean(t_losses)
+                print(f'[{epoch + 1} / {epochs}][{i} / {len(dataloader)}][lr: {current_lr}] losses: ce = {avg_running_ce_loss}| triplet = {avg_running_t_loss} | total: {avg_running_loss}')
+
     avg_loss = np.mean(losses)
     torch.save({'loss': avg_loss, 'state_dict': model.state_dict()},
                os.path.join(args.output, 'triplet_loss_baseline.pth'))
