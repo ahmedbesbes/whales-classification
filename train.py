@@ -82,6 +82,7 @@ def main():
     stats_classes['class'] = os.listdir(args.root)
     stats_classes['num'] = stats_classes['class'].map(lambda c: len(os.listdir(
         os.path.join(args.root, c))))
+    stats_classes['p'] = stats_classes['num'] / stats_classes['num'].sum()
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
