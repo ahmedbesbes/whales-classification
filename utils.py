@@ -31,7 +31,7 @@ def log_experience(args):
     arguments['leaderboard_score'] = None
 
     print('logging these arguments for the experience ...')
-    pprint(args)
+    pprint(arguments)
     print('----')
 
     if not os.path.exists(args.logs_experiences):
