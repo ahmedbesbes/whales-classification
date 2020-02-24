@@ -2,3 +2,4 @@
 .ipynb_checkpoints
 
 notebooks/
+yolov3/weights/
