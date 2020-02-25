@@ -230,7 +230,7 @@ def compute_predictions(model):
     test_db = sorted(
         [os.path.join(args.root_test, f) for f in os.listdir(args.root_test)])
 
-    scoring_dataset = ScoringDataset(db, data_transform_test)
+    scoring_dataset = ScoringDataset(db, data_transform_test, args.bbox_test)
     scoring_dataloader = DataLoader(
         scoring_dataset, shuffle=False, num_workers=10)
 
