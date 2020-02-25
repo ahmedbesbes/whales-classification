@@ -48,6 +48,7 @@ parser.add_argument('--hard', type=int, choices=[0, 1], default=1)
 parser.add_argument('--classif', type=str,
                     choices=['binary', 'multi'], default='binary')
 parser.add_argument('--weight-triplet', type=float, default=1)
+parser.add_argument('--use-ce', type=int, default=1, choices=[0, 1])
 
 parser.add_argument('--logging-step', type=int, default=25)
 parser.add_argument('--output', type=str, default='./models/')
@@ -163,17 +164,19 @@ def train(model, dataloader, optimizer, logging_step, epoch, epochs, current_lr)
         neg_img = batch_sample['neg_img'].to(device)
 
         with torch.set_grad_enabled(True):
-            anc_pred = model.forward_classifier(anc_img)
-            pos_pred = model.forward_classifier(pos_img)
-            neg_pred = model.forward_classifier(neg_img)
 
-            pos_targets = batch_sample['pos_class'].to(device)
-            neg_targets = batch_sample['neg_class'].to(device)
+            if bool(args.use_ce):
+                anc_pred = model.forward_classifier(anc_img)
+                pos_pred = model.forward_classifier(pos_img)
+                neg_pred = model.forward_classifier(neg_img)
 
-            preds = torch.cat([anc_pred, pos_pred, neg_pred], dim=0)
-            targets = torch.cat([pos_targets, pos_targets, neg_targets])
+                pos_targets = batch_sample['pos_class'].to(device)
+                neg_targets = batch_sample['neg_class'].to(device)
 
-            ce_loss = nn.CrossEntropyLoss()(preds, targets)
+                preds = torch.cat([anc_pred, pos_pred, neg_pred], dim=0)
+                targets = torch.cat([pos_targets, pos_targets, neg_targets])
+
+                ce_loss = nn.CrossEntropyLoss()(preds, targets)
 
             anc_embed, pos_embed, neg_embed = model(
                 anc_img), model(pos_img), model(neg_img)
@@ -200,8 +203,11 @@ def train(model, dataloader, optimizer, logging_step, epoch, epochs, current_lr)
                 triplet_loss = TripletLoss(args.margin).forward(anc_embed,
                                                                 pos_embed,
                                                                 neg_embed).to(device)
+            if bool(args.use_ce):
+                total_loss = ce_loss + args.weight_triplet * triplet_loss
+            else:
+                total_loss = triplet_loss
 
-            total_loss = ce_loss + args.weight_triplet * triplet_loss
             optimizer.zero_grad()
             total_loss.backward()
             optimizer.step()
