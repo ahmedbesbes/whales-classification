@@ -58,6 +58,8 @@ parser.add_argument('--bbox-train', type=str,
                     default='/data_science/computer_vision/whales/bounding_boxes/train_bbox.csv')
 parser.add_argument('--bbox-test', type=str,
                     default='/data_science/computer_vision/whales/bounding_boxes/test_bbox.csv')
+parser.add_argument('--bbox-all', type=str,
+                    default='/data_science/computer_vision/whales/bounding_boxes/all_bbox.csv')
 
 
 np.random.seed(0)
@@ -230,7 +232,7 @@ def compute_predictions(model):
     test_db = sorted(
         [os.path.join(args.root_test, f) for f in os.listdir(args.root_test)])
 
-    scoring_dataset = ScoringDataset(db, data_transform_test, args.bbox_test)
+    scoring_dataset = ScoringDataset(db, data_transform_test, args.bbox_all)
     scoring_dataloader = DataLoader(
         scoring_dataset, shuffle=False, num_workers=10)
 
@@ -242,7 +244,7 @@ def compute_predictions(model):
             embeddings.append(embedding)
     embeddings = np.concatenate(embeddings)
 
-    test_dataset = ScoringDataset(test_db, data_transform_test)
+    test_dataset = ScoringDataset(test_db, data_transform_test, args.bbox_test)
     test_dataloader = DataLoader(test_dataset, shuffle=False)
 
     test_embeddings = []
