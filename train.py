@@ -63,6 +63,7 @@ parser.add_argument('--bbox-test', type=str,
 parser.add_argument('--bbox-all', type=str,
                     default='/data_science/computer_vision/whales/bounding_boxes/all_bbox.csv')
 
+parser.add_argument('--checkpoint', type=str, default=None)
 
 np.random.seed(0)
 torch.manual_seed(0)
@@ -110,13 +111,20 @@ def main():
         num_classes = len(mapping_class_id)
         ids_to_labels = mapping_class_id
 
-    if args.archi == 'resnet34':
+    if args.checkpoint is not None:
         model = FaceNetModel(args.embedding_dim,
                              num_classes=num_classes,
                              pretrained=bool(args.pretrained))
-    elif args.archi == 'inception':
-        model = InceptionResnetV1(num_classes=num_classes,
-                                  embedding_dim=args.embedding_dim)
+        weights = torch.load(args.checkpoint)['state_dict']
+        model.load_state_dict(weights)
+    else:
+        if args.archi == 'resnet34':
+            model = FaceNetModel(args.embedding_dim,
+                                 num_classes=num_classes,
+                                 pretrained=bool(args.pretrained))
+        elif args.archi == 'inception':
+            model = InceptionResnetV1(num_classes=num_classes,
+                                      embedding_dim=args.embedding_dim)
 
     model.to(device)
 
