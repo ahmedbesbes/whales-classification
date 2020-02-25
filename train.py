@@ -212,15 +212,21 @@ def train(model, dataloader, optimizer, logging_step, epoch, epochs, current_lr)
             total_loss.backward()
             optimizer.step()
 
-            ce_losses.append(ce_loss.item())
+            if bool(args.use_ce):
+                ce_losses.append(ce_loss.item())
             t_losses.append(triplet_loss.item())
             losses.append(total_loss.item())
 
             if i % logging_step == 0:
                 avg_running_loss = np.mean(losses)
-                avg_running_ce_loss = np.mean(ce_losses)
                 avg_running_t_loss = np.mean(t_losses)
-                print(f'[{epoch + 1} / {epochs}][{i} / {len(dataloader)}][lr: {current_lr}] losses: ce = {avg_running_ce_loss}| triplet = {avg_running_t_loss} | total: {avg_running_loss}')
+
+                if bool(args.use_ce):
+                    avg_running_ce_loss = np.mean(ce_losses)
+                    print(f'[{epoch + 1} / {epochs}][{i} / {len(dataloader)}][lr: {current_lr}] losses: ce = {avg_running_ce_loss}| triplet = {avg_running_t_loss} | total: {avg_running_loss}')
+                else:
+                    print(
+                        f'[{epoch + 1} / {epochs}][{i} / {len(dataloader)}][lr: {current_lr}] total: {avg_running_loss}')
 
     avg_loss = np.mean(losses)
     torch.save({'loss': avg_loss, 'state_dict': model.state_dict()},
