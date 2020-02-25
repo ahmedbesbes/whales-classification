@@ -124,7 +124,7 @@ class ScoringDataset(Dataset):
 
 data_transform = transforms.Compose([
     transforms.ToPILImage(),
-    #transforms.Lambda(lambda img: expand2square(img)),
+    transforms.Lambda(lambda img: expand2square(img)),
     transforms.Resize((224, 224)),
     transforms.RandomRotation(10),
     transforms.RandomHorizontalFlip(),
@@ -136,7 +136,7 @@ data_transform = transforms.Compose([
 
 data_transform_test = transforms.Compose([
     transforms.ToPILImage(),
-    #transforms.Lambda(lambda img: expand2square(img)),
+    transforms.Lambda(lambda img: expand2square(img)),
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.5, 0.5, 0.5],
