@@ -47,6 +47,7 @@ parser.add_argument('--gamma', type=float, default=0.1)
 parser.add_argument('--hard', type=int, choices=[0, 1], default=1)
 parser.add_argument('--classif', type=str,
                     choices=['binary', 'multi'], default='binary')
+parser.add_argument('--weight-triplet', type=float, default=1)
 
 parser.add_argument('--logging-step', type=int, default=25)
 parser.add_argument('--output', type=str, default='./models/')
@@ -200,7 +201,7 @@ def train(model, dataloader, optimizer, logging_step, epoch, epochs, current_lr)
                                                                 pos_embed,
                                                                 neg_embed).to(device)
 
-            total_loss = ce_loss + triplet_loss
+            total_loss = ce_loss + args.weight_triplet * triplet_loss
             optimizer.zero_grad()
             total_loss.backward()
             optimizer.step()
