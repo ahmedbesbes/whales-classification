@@ -54,9 +54,9 @@ parser.add_argument('--submissions', type=str, default='./submissions/')
 parser.add_argument('--logs-experiences', type=str,
                     default='./experiences/logs.csv')
 
-parser.add_argument('--bbox-train', type='str',
+parser.add_argument('--bbox-train', type=str,
                     default='/data_science/computer_vision/whales/bounding_boxes/train_bbox.csv')
-parser.add_argument('--bbox-test', type='str',
+parser.add_argument('--bbox-test', type=str,
                     default='/data_science/computer_vision/whales/bounding_boxes/test_bbox.csv')
 
 
