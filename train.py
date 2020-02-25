@@ -54,6 +54,12 @@ parser.add_argument('--submissions', type=str, default='./submissions/')
 parser.add_argument('--logs-experiences', type=str,
                     default='./experiences/logs.csv')
 
+parser.add_argument('--bbox-train', type='str',
+                    default='/data_science/computer_vision/whales/bounding_boxes/train_bbox.csv')
+parser.add_argument('--bbox-test', type='str',
+                    default='/data_science/computer_vision/whales/bounding_boxes/test_bbox.csv')
+
+
 np.random.seed(0)
 torch.manual_seed(0)
 
@@ -123,7 +129,8 @@ def main():
                                 root=args.root,
                                 stats_classes=stats_classes,
                                 mapping_class_to_images=mapping_class_to_images,
-                                ids_to_labels=ids_to_labels)
+                                ids_to_labels=ids_to_labels,
+                                bbox=args.bbox_train)
         dataloader = DataLoader(dataset,
                                 batch_size=args.batch_size,
                                 num_workers=args.num_workers)
