@@ -69,7 +69,7 @@ class WhalesDataset(Dataset):
             else:
                 x, y = 0, 0
                 w = img.shape[1]
-                y = img.shape[0]
+                h = img.shape[0]
             img = img[y:y+h, x:x+w:, :]
             images.append(img)
 
@@ -115,7 +115,7 @@ class ScoringDataset(Dataset):
         else:
             x, y = 0, 0
             w = image.shape[1]
-            y = image.shape[0]
+            h = image.shape[0]
 
         image = image[y:y+h, x:x+w:, :]
         image = self.transform(image)
