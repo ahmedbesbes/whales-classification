@@ -116,7 +116,7 @@ def main():
                              num_classes=num_classes,
                              pretrained=bool(args.pretrained))
         weights = torch.load(args.checkpoint)
-        model.load_state_dict(weights)
+        model.load_state_dict(weights.state_dict())
         print('loading saved model ...')
     else:
         if args.archi == 'resnet34':
