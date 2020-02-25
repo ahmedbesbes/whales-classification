@@ -11,14 +11,12 @@ except:
     from tqdm import tqdm
 
 
-def detect(source, cfg="./cfg/yolov3.cfg", weights="./weights/last.pt", save_img=False):
+def detect(source, cfg="./cfg/yolov3.cfg", weights="./weights/last.pt", save_img=False, conf_thres=0.3, iou_thres=0.6):
     device = ""
     names = "data/whales.names"
 
     half = True
     img_size = 416
-    conf_thres = 0.3
-    iou_thres = 0.6
     classes = None
     agnostic_nms = False
     save_txt = False
