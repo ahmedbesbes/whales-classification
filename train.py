@@ -147,7 +147,7 @@ def main():
                                 bbox=args.bbox_train)
         dataloader = DataLoader(dataset,
                                 batch_size=args.batch_size,
-                                shuffle=True,
+                                # shuffle=True,
                                 num_workers=args.num_workers)
 
         params = {
