@@ -291,14 +291,33 @@ def compute_predictions(model):
     #     submission[c] = submission[c].map(lambda v: db[v].split('/')[-1])
 
     csm = cosine_similarity(test_embeddings, embeddings)
-    I = csm.argsort(axis=1)[:, -20:][::-1]
+    all_indices = []
+    for i in range(len(csm)):
+        test_file = test_db[i]
+        index_test_file_all = db.index(test_file)
+        similarities = csm[i]
 
-    submission = pd.DataFrame(np.zeros((808, 21)))
-    submission[0] = [f.split('/')[-1] for f in test_db]
+        index_sorted_sim = np.argsort(similarities)[::-1]
 
-    for i, c in enumerate(range(1, 21)):
-        submission[c] = I[:, i]
+        c = 0
+        indices = []
+        for idx in index_sorted_sim:
+            if idx != index_test_file_all:
+                indices.append(idx)
+                c += 1
+            if c > 20:
+                break
+        all_indices.append(indices)
+
+    submission = pd.DataFrame(all_indices)
+    submission = submission.rename(columns=dict(
+        zip(submission.columns.tolist(), [c+1 for c in submission.columns.tolist()])))
+
+    for c in submission.columns:
         submission[c] = submission[c].map(lambda v: db[v].split('/')[-1])
+
+    submission[0] = [f.split('/')[-1] for f in test_db]
+    submission = submission[range(21)]
 
     submission.to_csv(os.path.join(
         args.submissions, 'triplet_loss_baseline.csv'), header=None, sep=',', index=False)
