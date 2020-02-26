@@ -17,6 +17,7 @@ from torch.autograd import Function
 from torch.nn.modules.distance import PairwiseDistance
 from torch.optim.lr_scheduler import StepLR, MultiStepLR
 
+from sklearn.metrics.pairwise import cosine_similarity
 import faiss
 
 from backbones.Resnet34 import FaceNetModel
@@ -279,14 +280,24 @@ def compute_predictions(model):
 
     test_embeddings = np.concatenate(test_embeddings)
 
-    quantizer = faiss.IndexFlatL2(args.embedding_dim)
-    faiss_index = faiss.IndexIVFFlat(
-        quantizer, args.embedding_dim, 50, faiss.METRIC_INNER_PRODUCT)
-    faiss_index.train(embeddings)
-    faiss_index.add(embeddings)
-    D, I = faiss_index.search(test_embeddings, 21)
-    submission = pd.DataFrame(I)
-    for c in submission.columns:
+    # quantizer = faiss.IndexFlatL2(args.embedding_dim)
+    # faiss_index = faiss.IndexIVFFlat(
+    #     quantizer, args.embedding_dim, 50, faiss.METRIC_INNER_PRODUCT)
+    # faiss_index.train(embeddings)
+    # faiss_index.add(embeddings)
+    # D, I = faiss_index.search(test_embeddings, 21)
+    # submission = pd.DataFrame(I)
+    # for c in submission.columns:
+    #     submission[c] = submission[c].map(lambda v: db[v].split('/')[-1])
+
+    csm = cosine_similarity(test_embeddings, embeddings)
+    I = csm.argsort(axis=1)[:, -20:][::-1]
+
+    submission = pd.DataFrame(np.zeros((808, 21)))
+    submission[0] = [f.split('/')[-1] for f in test_db]
+
+    for i, c in enumerate(range(1, 21)):
+        submission[c] = I[:, i]
         submission[c] = submission[c].map(lambda v: db[v].split('/')[-1])
 
     submission.to_csv(os.path.join(
