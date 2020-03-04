@@ -153,7 +153,7 @@ def main():
 
     torch.save(model.state_dict(),
                os.path.join(args.output,
-                            f'{args.time_id}_pth'))
+                            f'{time_id}_pth'))
 
     compute_predictions(model, mapping_label_id, time_id)
 
