@@ -43,7 +43,6 @@ parser.add_argument('--lr', type=float, default=3e-4)
 parser.add_argument('--epochs', type=int, default=80)
 parser.add_argument('--batch-size', type=int, default=32)
 parser.add_argument('--num-workers', type=int, default=11)
-parser.add_argument('--step-size', type=float, default=5)
 parser.add_argument('--gamma', type=float, default=0.1)
 
 parser.add_argument('--logging-step', type=int, default=10)
@@ -117,7 +116,8 @@ def main():
                          mapping_label_id=mapping_label_id,
                          transform=data_transform
                          )
-    sampler = PKSampler(data_source=dataset,
+    sampler = PKSampler(root=args.root,
+                        data_source=dataset,
                         classes=classes,
                         labels_to_samples=labels_to_samples,
                         mapping_files_to_global_id=mapping_files_to_global_id,
