@@ -72,6 +72,9 @@ torch.manual_seed(0)
 args = parser.parse_args()
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
+if bool(args.half_precision):
+    from apex import amp
+
 
 def main():
     if args.flush == 1:
@@ -150,7 +153,6 @@ def main():
     optimizer = Adam(model.parameters(), lr=args.lr)
 
     if bool(args.half_precision):
-        from apex import amp
         model, optimizer = amp.initialize(model, optimizer)
 
     scheduler = MultiStepLR(optimizer,
