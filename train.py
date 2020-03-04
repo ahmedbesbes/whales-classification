@@ -64,6 +64,8 @@ parser.add_argument('--checkpoint', type=str, default=None)
 parser.add_argument('--flush', type=int, choices=[0, 1], default=1)
 parser.add_argument('--log_path', type=str, default='./logs/')
 
+parser.add_argument('--checkpoint-preriod', type=int, default=-1)
+
 np.random.seed(0)
 torch.manual_seed(0)
 
@@ -164,7 +166,8 @@ def main():
             'epoch': epoch,
             'epochs': args.epochs,
             'current_lr': current_lr,
-            'writer': writer
+            'writer': writer,
+            'time_id': time_id
         }
         _ = train(**params)
         scheduler.step()
@@ -176,7 +179,7 @@ def main():
     compute_predictions(model, mapping_label_id, time_id)
 
 
-def train(model, dataloader, optimizer, criterion, scheduler, logging_step, epoch, epochs, current_lr, writer):
+def train(model, dataloader, optimizer, criterion, scheduler, logging_step, epoch, epochs, current_lr, writer, time_id):
     current_lr = get_lr(optimizer)
     losses = []
 
@@ -206,6 +209,11 @@ def train(model, dataloader, optimizer, criterion, scheduler, logging_step, epoc
                       average_loss,
                       epoch
                       )
+
+    if (args.checkpoint_period != -1) & (args.checkpoint_period % (epoch+1) == 0):
+        torch.save(model.state_dict(),
+                   os.path.join(args.output,
+                                f'{time_id}_pth'))
 
     return average_loss
 
