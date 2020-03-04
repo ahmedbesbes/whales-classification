@@ -64,7 +64,7 @@ parser.add_argument('--checkpoint', type=str, default=None)
 parser.add_argument('--flush', type=int, choices=[0, 1], default=1)
 parser.add_argument('--log_path', type=str, default='./logs/')
 
-parser.add_argument('--checkpoint-preriod', type=int, default=-1)
+parser.add_argument('--checkpoint-period', type=int, default=-1)
 
 np.random.seed(0)
 torch.manual_seed(0)
