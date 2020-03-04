@@ -40,7 +40,6 @@ parser.add_argument('--margin', type=float, default=0.2)
 parser.add_argument('-p', type=int, default=8)
 parser.add_argument('-k', type=int, default=4)
 
-
 parser.add_argument('--lr', type=float, default=3e-4)
 parser.add_argument('--epochs', type=int, default=80)
 parser.add_argument('--batch-size', type=int, default=32)
@@ -161,7 +160,6 @@ def main():
             'dataloader': dataloader,
             'optimizer': optimizer,
             'criterion': criterion,
-            'scheduler': scheduler,
             'logging_step': args.logging_step,
             'epoch': epoch,
             'epochs': args.epochs,
@@ -179,7 +177,7 @@ def main():
     compute_predictions(model, mapping_label_id, time_id)
 
 
-def train(model, dataloader, optimizer, criterion, scheduler, logging_step, epoch, epochs, current_lr, writer, time_id):
+def train(model, dataloader, optimizer, criterion, logging_step, epoch, epochs, current_lr, writer, time_id):
     current_lr = get_lr(optimizer)
     losses = []
 
@@ -203,7 +201,6 @@ def train(model, dataloader, optimizer, criterion, scheduler, logging_step, epoc
             print(
                 f'[Epoch {epoch+1}][Batch {i} / {len(dataloader)}][lr: {current_lr}]: loss {running_avg_loss}')
 
-    scheduler.step()
     average_loss = np.mean(losses)
     writer.add_scalar(f'loss-epoch',
                       average_loss,
