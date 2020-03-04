@@ -146,7 +146,9 @@ def main():
 
     criterion = TripletLoss(margin=args.margin, sample=False)
     optimizer = Adam(model.parameters(), lr=args.lr)
-    scheduler = MultiStepLR(optimizer, milestones=[70], gamma=args.gamma)
+    scheduler = MultiStepLR(optimizer,
+                            milestones=args.milestones,
+                            gamma=args.gamma)
 
     model.train()
 
