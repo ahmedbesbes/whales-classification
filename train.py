@@ -193,7 +193,7 @@ def train(model, dataloader, optimizer, criterion, scheduler, logging_step, epoc
                           epoch * len(dataloader) + i
                           )
 
-        if i % logging_step == 0:
+        if (i % logging_step == 0) & (i > 0):
             running_avg_loss = np.mean(losses)
             print(
                 f'[Epoch {epoch+1}][Batch {i} / {len(dataloader)}][lr: {current_lr}]: loss {running_avg_loss}')
