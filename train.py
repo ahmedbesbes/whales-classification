@@ -13,7 +13,7 @@ from torch.optim import Adam, SGD
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision import transforms
-from torch.optim.lr_scheduler import StepLR, MultiStepLR
+from torch.optim.lr_scheduler import MultiStepLR
 from torch.utils.tensorboard import SummaryWriter
 
 from sklearn.metrics.pairwise import cosine_similarity
