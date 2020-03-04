@@ -51,7 +51,6 @@ class WhalesData(Dataset):
 data_transform = transforms.Compose([
     transforms.ToPILImage(),
     transforms.Lambda(lambda img: expand2square(img)),
-    transforms.ColorJitter(brightness=0.2, contrast=0.1),
     transforms.Resize((224, 224)),
     transforms.RandomRotation(10),
     transforms.ToTensor(),
