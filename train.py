@@ -1,5 +1,6 @@
 import os
 import sys
+import shutil
 import argparse
 from datetime import datetime
 import numpy as np
@@ -13,6 +14,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torch.optim.lr_scheduler import StepLR, MultiStepLR
+from torch.utils.tensorboard import SummaryWriter
 
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -58,8 +60,9 @@ parser.add_argument('--bbox-test', type=str,
                     default='/data_science/computer_vision/whales/bounding_boxes/test_bbox.csv')
 parser.add_argument('--bbox-all', type=str,
                     default='/data_science/computer_vision/whales/bounding_boxes/all_bbox.csv')
-
 parser.add_argument('--checkpoint', type=str, default=None)
+parser.add_argument('--flush', type=int, choices=[0, 1], default=1)
+parser.add_argument('--log_path', type=str, default='./logs/')
 
 np.random.seed(0)
 torch.manual_seed(0)
@@ -69,6 +72,17 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 
 def main():
+    if args.flush == 1:
+        objects = os.listdir(args.log_path)
+        for f in objects:
+            if os.path.isdir(os.path.join(args.log_path, f)):
+                shutil.rmtree(os.path.join(args.log_path, f))
+    now = datetime.now()
+    date = now.strftime("%Y%m%d-%H%M%S")
+    logdir = os.path.join(args.log_path, date)
+    os.makedirs(logdir)
+    writer = SummaryWriter(logdir)
+
     time_id = log_experience(args)
 
     train_path = args.root
@@ -148,6 +162,7 @@ def main():
             'epoch': epoch,
             'epochs': args.epochs,
             'current_lr': current_lr,
+            'writer': writer
         }
         _ = train(**params)
         scheduler.step()
@@ -159,7 +174,7 @@ def main():
     compute_predictions(model, mapping_label_id, time_id)
 
 
-def train(model, dataloader, optimizer, criterion, scheduler, logging_step, epoch, epochs, current_lr):
+def train(model, dataloader, optimizer, criterion, scheduler, logging_step, epoch, epochs, current_lr, writer):
     current_lr = get_lr(optimizer)
     losses = []
 
@@ -173,6 +188,11 @@ def train(model, dataloader, optimizer, criterion, scheduler, logging_step, epoc
         optimizer.step()
         losses.append(loss.item())
 
+        writer.add_scalar(f'loss',
+                          loss.item(),
+                          epoch * len(dataloader) + i
+                          )
+
         if i % logging_step == 0:
             running_avg_loss = np.mean(losses)
             print(
@@ -180,6 +200,11 @@ def train(model, dataloader, optimizer, criterion, scheduler, logging_step, epoc
 
     scheduler.step()
     average_loss = np.mean(losses)
+    writer.add_scalar(f'loss-epoch',
+                      average_loss,
+                      epoch
+                      )
+
     return average_loss
 
 
