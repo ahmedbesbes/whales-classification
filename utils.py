@@ -27,7 +27,8 @@ def expand2square(pil_img):
 
 def log_experience(args):
     arguments = vars(args)
-    arguments['date'] = str(datetime.now())
+    time_id = str(datetime.now())
+    arguments['date'] = time_id
     arguments['leaderboard_score'] = None
 
     print('logging these arguments for the experience ...')
@@ -41,3 +42,5 @@ def log_experience(args):
         logs = pd.read_csv(args.logs_experiences)
         logs = logs.append([arguments])
         logs.to_csv(args.logs_experiences, index=False)
+
+    return time_id
