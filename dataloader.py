@@ -6,13 +6,14 @@ from utils import expand2square
 
 
 class WhalesData(Dataset):
-    def __init__(self, paths, bbox, mapping_label_id, transform):
+    def __init__(self, paths, bbox, mapping_label_id, transform, test=False):
         self.paths = paths
         self.bbox = pd.read_csv(bbox)
         self.bbox.set_index('path', inplace=True)
         self.bbox = self.bbox.to_dict(orient='index')
         self.mapping_label_id = mapping_label_id
         self.transform = transform
+        self.test = test
 
     def __len__(self):
         return len(self.paths)
@@ -33,13 +34,17 @@ class WhalesData(Dataset):
         img = img[y:h, x:w, :]
         img = self.transform(img)
 
-        folder = path.split('/')[-2]
-        label = self.mapping_label_id[folder]
-
-        sample = {
-            'image': img,
-            'label': label
-        }
+        if self.test == False:
+            folder = path.split('/')[-2]
+            label = self.mapping_label_id[folder]
+            sample = {
+                'image': img,
+                'label': label
+            }
+        else:
+            sample = {
+                'image': img
+            }
         return sample
 
 
