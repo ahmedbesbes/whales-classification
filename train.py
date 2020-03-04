@@ -153,7 +153,7 @@ def main():
     optimizer = Adam(model.parameters(), lr=args.lr)
 
     if bool(args.half_precision):
-        model, optimizer = amp.initialize(model, optimizer)
+        model, optimizer = amp.initialize(model, optimizer, opt_level="O2")
 
     scheduler = MultiStepLR(optimizer,
                             milestones=args.milestones,
