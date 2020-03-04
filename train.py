@@ -234,7 +234,7 @@ def compute_predictions(model, mapping_label_id, time_id):
     scoring_dataset = WhalesData(db,
                                  args.bbox_all,
                                  mapping_label_id,
-                                 data_transform,
+                                 data_transform_test,
                                  test=True)
 
     scoring_dataloader = DataLoader(scoring_dataset,
