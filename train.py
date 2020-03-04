@@ -44,6 +44,7 @@ parser.add_argument('--epochs', type=int, default=80)
 parser.add_argument('--batch-size', type=int, default=32)
 parser.add_argument('--num-workers', type=int, default=11)
 parser.add_argument('--gamma', type=float, default=0.1)
+parser.add_argument('--milestones', nargs='+', type=int)
 
 parser.add_argument('--logging-step', type=int, default=10)
 parser.add_argument('--output', type=str, default='./models/')
@@ -131,7 +132,7 @@ def main():
 
     criterion = TripletLoss(margin=args.margin, sample=False)
     optimizer = Adam(model.parameters(), lr=args.lr)
-    scheduler = MultiStepLR(optimizer, milestones=[50], gamma=args.gamma)
+    scheduler = MultiStepLR(optimizer, milestones=[70], gamma=args.gamma)
 
     model.train()
 
