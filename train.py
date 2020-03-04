@@ -64,6 +64,7 @@ parser.add_argument('--flush', type=int, choices=[0, 1], default=1)
 parser.add_argument('--log_path', type=str, default='./logs/')
 
 parser.add_argument('--checkpoint-period', type=int, default=-1)
+parser.add_argument('--half-precision', type=int, choices=[0, 1], default=0)
 
 np.random.seed(0)
 torch.manual_seed(0)
@@ -147,6 +148,11 @@ def main():
 
     criterion = TripletLoss(margin=args.margin, sample=False)
     optimizer = Adam(model.parameters(), lr=args.lr)
+
+    if bool(args.half_precision):
+        from apex import amp
+        model, optimizer = amp.initialize(model, optimizer)
+
     scheduler = MultiStepLR(optimizer,
                             milestones=args.milestones,
                             gamma=args.gamma)
@@ -185,9 +191,14 @@ def train(model, dataloader, optimizer, criterion, logging_step, epoch, epochs, 
         images = batch['image']
         targets = batch['label']
         predictions = model(images.cuda())
-        loss = criterion(predictions, targets.cuda())
         optimizer.zero_grad()
-        loss.backward()
+        loss = criterion(predictions, targets.cuda())
+
+        if bool(args.half_precision):
+            with amp.scale_loss(loss, optimizer) as scaled_loss:
+                scaled_loss.backward()
+        else:
+            loss.backward()
         optimizer.step()
         losses.append(loss.item())
 
