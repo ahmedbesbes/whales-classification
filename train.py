@@ -64,7 +64,6 @@ parser.add_argument('--flush', type=int, choices=[0, 1], default=1)
 parser.add_argument('--log_path', type=str, default='./logs/')
 
 parser.add_argument('--checkpoint-period', type=int, default=-1)
-parser.add_argument('--half-precision', type=int, choices=[0, 1], default=0)
 
 parser.add_argument('--clr', action='store_true')
 parser.add_argument('--min-lr', type=float, default=2.4e-6)
@@ -76,9 +75,6 @@ torch.manual_seed(0)
 
 args = parser.parse_args()
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-
-if bool(args.half_precision):
-    from apex import amp
 
 
 def main():
@@ -155,19 +151,17 @@ def main():
                             num_workers=args.num_workers)
 
     criterion = TripletLoss(margin=args.margin, sample=False)
-    optimizer = Adam(model.parameters(), lr=args.lr)
-
-    if bool(args.half_precision):
-        model, optimizer = amp.initialize(model, optimizer, opt_level="O2")
 
     if args.clr:
         print('using learning rate scheduling ...')
+        optimizer = Adam(model.parameters(), lr=1)
         step_size = int(len(dataloader) * args.step_size)
         clr = cyclical_lr(step_size,
                           args.min_lr,
                           args.max_lr)
         scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, [clr])
     else:
+        optimizer = Adam(model.parameters(), lr=args.lr)
         scheduler = MultiStepLR(optimizer,
                                 milestones=args.milestones,
                                 gamma=args.gamma)
@@ -212,11 +206,7 @@ def train(model, dataloader, optimizer, criterion, logging_step, epoch, epochs, 
         optimizer.zero_grad()
         loss = criterion(predictions, targets.cuda())
 
-        if bool(args.half_precision):
-            with amp.scale_loss(loss, optimizer) as scaled_loss:
-                scaled_loss.backward()
-        else:
-            loss.backward()
+        loss.backward()
 
         if args.clr:
             scheduler.step()
