@@ -244,9 +244,8 @@ def compute_predictions(model, mapping_label_id, time_id):
     db = []
     train_folder = os.path.join(args.root)
     for c in os.listdir(train_folder):
-        if c != '-1':
-            for f in os.listdir(os.path.join(train_folder, c)):
-                db.append(os.path.join(train_folder, c, f))
+        for f in os.listdir(os.path.join(train_folder, c)):
+            db.append(os.path.join(train_folder, c, f))
 
     db += [os.path.join(args.root_test, f) for f in os.listdir(args.root_test)]
     test_db = sorted(
