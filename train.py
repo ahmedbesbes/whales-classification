@@ -22,7 +22,7 @@ from backbones.Resnet34 import FaceNetModel
 from backbones.InceptionResnet import InceptionResnetV1
 from dataloader import WhalesData, data_transform, data_transform_test
 from sampler import PKSampler
-from utils import get_lr, log_experience
+from utils import get_lr, log_experience, cyclical_lr
 from losses import TripletLoss
 
 parser = argparse.ArgumentParser()
@@ -65,6 +65,11 @@ parser.add_argument('--log_path', type=str, default='./logs/')
 
 parser.add_argument('--checkpoint-period', type=int, default=-1)
 parser.add_argument('--half-precision', type=int, choices=[0, 1], default=0)
+
+parser.add_argument('--clr', action='store_true')
+parser.add_argument('--min-lr', type=float, default=2.4e-6)
+parser.add_argument('--max-lr', type=float, default=1.4e-5)
+parser.add_argument('--step-size', type=int, default=4)
 
 np.random.seed(0)
 torch.manual_seed(0)
@@ -155,9 +160,17 @@ def main():
     if bool(args.half_precision):
         model, optimizer = amp.initialize(model, optimizer, opt_level="O2")
 
-    scheduler = MultiStepLR(optimizer,
-                            milestones=args.milestones,
-                            gamma=args.gamma)
+    if args.clr:
+        print('using learning rate scheduling ...')
+        step_size = int(len(dataloader) * args.step_size)
+        clr = cyclical_lr(step_size,
+                          args.min_lr,
+                          args.max_lr)
+        scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, [clr])
+    else:
+        scheduler = MultiStepLR(optimizer,
+                                milestones=args.milestones,
+                                gamma=args.gamma)
 
     model.train()
 
@@ -173,10 +186,13 @@ def main():
             'epochs': args.epochs,
             'current_lr': current_lr,
             'writer': writer,
-            'time_id': time_id
+            'time_id': time_id,
+            'scheduler': scheduler
         }
         _ = train(**params)
-        scheduler.step()
+
+        if not args.clr:
+            scheduler.step()
 
     torch.save(model.state_dict(),
                os.path.join(args.output,
@@ -185,7 +201,7 @@ def main():
     compute_predictions(model, mapping_label_id, time_id)
 
 
-def train(model, dataloader, optimizer, criterion, logging_step, epoch, epochs, current_lr, writer, time_id):
+def train(model, dataloader, optimizer, criterion, logging_step, epoch, epochs, current_lr, writer, time_id, scheduler):
     current_lr = get_lr(optimizer)
     losses = []
 
@@ -201,6 +217,10 @@ def train(model, dataloader, optimizer, criterion, logging_step, epoch, epochs, 
                 scaled_loss.backward()
         else:
             loss.backward()
+
+        if args.clr:
+            scheduler.step()
+
         optimizer.step()
         losses.append(loss.item())
 
