@@ -169,7 +169,6 @@ def main():
     model.train()
 
     for epoch in tqdm(range(args.epochs)):
-        current_lr = get_lr(optimizer)
         params = {
             'model': model,
             'dataloader': dataloader,
@@ -178,7 +177,6 @@ def main():
             'logging_step': args.logging_step,
             'epoch': epoch,
             'epochs': args.epochs,
-            'current_lr': current_lr,
             'writer': writer,
             'time_id': time_id,
             'scheduler': scheduler
@@ -195,7 +193,7 @@ def main():
     compute_predictions(model, mapping_label_id, time_id)
 
 
-def train(model, dataloader, optimizer, criterion, logging_step, epoch, epochs, current_lr, writer, time_id, scheduler):
+def train(model, dataloader, optimizer, criterion, logging_step, epoch, epochs, writer, time_id, scheduler):
     current_lr = get_lr(optimizer)
     losses = []
 
@@ -210,6 +208,8 @@ def train(model, dataloader, optimizer, criterion, logging_step, epoch, epochs, 
 
         if args.clr:
             scheduler.step()
+
+        current_lr = get_lr(optimizer)
 
         optimizer.step()
         losses.append(loss.item())
