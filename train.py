@@ -34,6 +34,7 @@ parser.add_argument(
 parser.add_argument('--archi', default='resnet34',
                     choices=['resnet34', 'inception'], type=str)
 parser.add_argument('--embedding-dim', type=int, default=256)
+parser.add_argument('--dropout', type=float, default=0.5)
 parser.add_argument('--pretrained', type=int, choices=[0, 1], default=1)
 parser.add_argument('--margin', type=float, default=0.2)
 
@@ -125,7 +126,8 @@ def main():
         if args.archi == 'resnet34':
             model = FaceNetModel(args.embedding_dim,
                                  num_classes=num_classes,
-                                 pretrained=bool(args.pretrained))
+                                 pretrained=bool(args.pretrained),
+                                 dropout=args.dropout)
         elif args.archi == 'inception':
             model = InceptionResnetV1(num_classes=num_classes,
                                       embedding_dim=args.embedding_dim)

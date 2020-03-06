@@ -4,7 +4,7 @@ from torchvision.models import resnet101
 
 
 class FaceNetModel(nn.Module):
-    def __init__(self, embedding_size, num_classes, image_size=224, pretrained=False):
+    def __init__(self, embedding_size, num_classes, image_size=224, pretrained=False, dropout=0.5):
         super(FaceNetModel, self).__init__()
 
         self.model = resnet101(pretrained)
@@ -13,7 +13,7 @@ class FaceNetModel(nn.Module):
             (1, 3, image_size, image_size))
         self.model.fc = nn.Linear(self.output_conv, self.embedding_size)
         self.model.classifier = nn.Linear(self.embedding_size, num_classes)
-        self.dropout = nn.Dropout(0.4)
+        self.dropout = nn.Dropout(p=dropout)
 
     def l2_norm(self, input):
         input_size = input.size()
