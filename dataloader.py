@@ -48,24 +48,24 @@ class WhalesData(Dataset):
         return sample
 
 
-data_transform = transforms.Compose([
-    transforms.ToPILImage(),
-    transforms.Grayscale(num_output_channels=3),
-    transforms.Lambda(lambda img: expand2square(img)),
-    transforms.Resize((224, 224)),
-    transforms.RandomRotation(10),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                         std=[0.5, 0.5, 0.5])
-])
-
-
-data_transform_test = transforms.Compose([
-    transforms.ToPILImage(),
-    transforms.Grayscale(num_output_channels=3),
-    transforms.Lambda(lambda img: expand2square(img)),
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                         std=[0.5, 0.5, 0.5])
-])
+def augmentation(image_size, train=True):
+    if train:
+        data_transform = transforms.Compose([
+            transforms.ToPILImage(),
+            transforms.Lambda(lambda img: expand2square(img)),
+            transforms.Resize((image_size, image_size)),
+            transforms.RandomRotation(10),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                                 std=[0.5, 0.5, 0.5])
+        ])
+    else:
+        data_transform = transforms.Compose([
+            transforms.ToPILImage(),
+            transforms.Lambda(lambda img: expand2square(img)),
+            transforms.Resize((image_size, image_size)),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                                 std=[0.5, 0.5, 0.5])
+        ])
+    return data_transform

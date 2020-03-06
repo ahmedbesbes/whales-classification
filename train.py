@@ -20,7 +20,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from backbones.Resnet34 import FaceNetModel
 from backbones.InceptionResnet import InceptionResnetV1
-from dataloader import WhalesData, data_transform, data_transform_test
+from dataloader import WhalesData, augmentation
 from sampler import PKSampler
 from utils import get_lr, log_experience, cyclical_lr
 from losses import TripletLoss
@@ -32,12 +32,13 @@ parser.add_argument(
     '--root-test', default='/data_science/computer_vision/whales/data/test_val/', type=str)
 
 parser.add_argument('--archi', default='resnet34',
-                    choices=['resnet34', 'inception'], type=str)
+                    choices=['resnet18', 'resnet34', 'resnet50', 'resnet101'], type=str)
 parser.add_argument('--embedding-dim', type=int, default=256)
-parser.add_argument('--dropout', type=float, default=0.5)
+parser.add_argument('--dropout', type=float, default=0.4)
 parser.add_argument('--pretrained', type=int, choices=[0, 1], default=1)
-parser.add_argument('--margin', type=float, default=0.2)
+parser.add_argument('--image-size', type=int, default=224)
 
+parser.add_argument('--margin', type=float, default=0.2)
 parser.add_argument('-p', type=int, default=8)
 parser.add_argument('-k', type=int, default=4)
 
@@ -123,17 +124,16 @@ def main():
         model.load_state_dict(weights)
         print('loading saved model ...')
     else:
-        if args.archi == 'resnet34':
-            model = FaceNetModel(args.embedding_dim,
-                                 num_classes=num_classes,
-                                 pretrained=bool(args.pretrained),
-                                 dropout=args.dropout)
-        elif args.archi == 'inception':
-            model = InceptionResnetV1(num_classes=num_classes,
-                                      embedding_dim=args.embedding_dim)
+        model = FaceNetModel(args.embedding_dim,
+                             num_classes=num_classes,
+                             pretrained=bool(args.pretrained),
+                             dropout=args.dropout,
+                             image_size=args.image_size,
+                             archi=args.archi)
 
     model.to(device)
 
+    data_transform = augmentation(args.image_size, train=True)
     dataset = WhalesData(paths=paths,
                          bbox=args.bbox_train,
                          mapping_label_id=mapping_label_id,
@@ -253,6 +253,7 @@ def compute_predictions(model, mapping_label_id, time_id):
     test_db = sorted(
         [os.path.join(args.root_test, f) for f in os.listdir(args.root_test)])
 
+    data_transform_test = augmentation(args.image_size, train=False)
     scoring_dataset = WhalesData(db,
                                  args.bbox_all,
                                  mapping_label_id,

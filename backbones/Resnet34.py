@@ -1,13 +1,21 @@
 import torch
 import torch.nn as nn
-from torchvision.models import resnet101
+from torchvision.models import resnet18, resnet34, resnet50, resnet101
 
 
 class FaceNetModel(nn.Module):
-    def __init__(self, embedding_size, num_classes, image_size=224, pretrained=False, dropout=0.5):
+    def __init__(self, embedding_size, num_classes, image_size=224, pretrained=False, dropout=0.4, archi='resnet18'):
         super(FaceNetModel, self).__init__()
 
-        self.model = resnet101(pretrained)
+        if archi == 'resnet18':
+            self.model = resnet18(pretrained)
+        elif archi == 'resnet34':
+            self.model = resnet34(pretrained)
+        elif archi == 'resnet50':
+            self.model = resnet50(pretrained)
+        elif archi == 'resnet101':
+            self.model = resnet101(pretrained)
+
         self.embedding_size = embedding_size
         self.output_conv = self._get_output_conv(
             (1, 3, image_size, image_size))
