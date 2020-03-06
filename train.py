@@ -95,7 +95,14 @@ def main():
 
     train_path = args.root
     classes = os.listdir(train_path)
+
     classes.remove('-1')
+    classes_to_remove = []
+    for c in classes:
+        if len(os.listdir(os.path.join(train_path, c))) == 1:
+            classes_to_remove.append(c)
+    classes = [c for c in classes if c not in classes_to_remove]
+
     num_classes = len(classes)
     mapping_label_id = dict(zip(classes, range(len(classes))))
 
