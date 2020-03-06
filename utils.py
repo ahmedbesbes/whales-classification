@@ -1,5 +1,6 @@
 import math
 import os
+import json
 from datetime import datetime
 from pprint import pprint
 import pandas as pd
@@ -36,13 +37,8 @@ def log_experience(args):
     pprint(arguments)
     print('----')
 
-    if not os.path.exists(args.logs_experiences):
-        logs = pd.DataFrame([arguments])
-        logs.to_csv(args.logs_experiences, index=False)
-    else:
-        logs = pd.read_csv(args.logs_experiences)
-        logs = logs.append([arguments])
-        logs.to_csv(args.logs_experiences, index=False)
+    with open(os.path.join(args.logs_experiences, f'{time_id}.json'), 'w') as f:
+        json.dump(arguments, f)
 
     return time_id
 
