@@ -53,7 +53,7 @@ parser.add_argument('--logging-step', type=int, default=10)
 parser.add_argument('--output', type=str, default='./models/')
 parser.add_argument('--submissions', type=str, default='./submissions/')
 parser.add_argument('--logs-experiences', type=str,
-                    default='./experiences/logs.csv')
+                    default='./experiences/')
 
 parser.add_argument('--bbox-train', type=str,
                     default='/data_science/computer_vision/whales/bounding_boxes/train_bbox.csv')
