@@ -26,6 +26,9 @@ from utils import get_lr, log_experience, cyclical_lr
 from losses import TripletLoss
 
 parser = argparse.ArgumentParser()
+
+parser.add_argument(
+    '--data', default='/data_science/computer_vision/whales/data/data_cleaned.csv', type=str)
 parser.add_argument(
     '--root', default='/data_science/computer_vision/whales/data/train/', type=str)
 parser.add_argument(
@@ -94,32 +97,16 @@ def main():
     time_id = log_experience(args)
 
     train_path = args.root
-    classes = os.listdir(train_path)
 
-    classes.remove('-1')
-    classes_to_remove = []
-    for c in classes:
-        if len(os.listdir(os.path.join(train_path, c))) == 1:
-            classes_to_remove.append(c)
-    classes = [c for c in classes if c not in classes_to_remove]
-
-    num_classes = len(classes)
-    mapping_label_id = dict(zip(classes, range(len(classes))))
-
-    mapping_files_to_global_id = {}
-    mapping_global_id_to_files = {}
-
-    paths = []
-    index = 0
-    labels_to_samples = {}
-    for c in classes:
-        labels_to_samples[c] = os.listdir(os.path.join(train_path, c))
-        for f in os.listdir(os.path.join(train_path, c)):
-            file_path = str(os.path.join(train_path, c, f))
-            mapping_files_to_global_id[file_path] = index
-            mapping_global_id_to_files[index] = file_path
-            index += 1
-            paths.append(file_path)
+    data = pd.read_csv(args.data)
+    classes = data.folder.unique()
+    num_classes = data.folder.nunique()
+    mapping_files_to_global_id = dict(
+        zip(data.full_path.tolist(), data.file_id.tolist()))
+    mapping_global_id_to_files = dict(
+        zip(data.file_id.tolist(), data.full_path.tolist()))
+    paths = data.full_path.tolist()
+    labels_to_samples = data.groupby('folder').agg(list)['filename'].to_dict()
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
