@@ -96,8 +96,6 @@ def main():
 
     time_id = log_experience(args)
 
-    train_path = args.root
-
     data = pd.read_csv(args.data)
     classes = data.folder.unique()
     mapping_label_id = dict(zip(classes, range(len(classes))))
@@ -105,8 +103,6 @@ def main():
     num_classes = data.folder.nunique()
     mapping_files_to_global_id = dict(
         zip(data.full_path.tolist(), data.file_id.tolist()))
-    mapping_global_id_to_files = dict(
-        zip(data.file_id.tolist(), data.full_path.tolist()))
     paths = data.full_path.tolist()
     labels_to_samples = data.groupby('folder').agg(list)['filename'].to_dict()
 
