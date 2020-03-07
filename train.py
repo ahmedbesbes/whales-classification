@@ -100,6 +100,8 @@ def main():
 
     data = pd.read_csv(args.data)
     classes = data.folder.unique()
+    mapping_label_id = dict(zip(classes, range(len(classes))))
+
     num_classes = data.folder.nunique()
     mapping_files_to_global_id = dict(
         zip(data.full_path.tolist(), data.file_id.tolist()))
