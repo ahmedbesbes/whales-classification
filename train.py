@@ -65,6 +65,7 @@ parser.add_argument('--bbox-test', type=str,
 parser.add_argument('--bbox-all', type=str,
                     default='/data_science/computer_vision/whales/bounding_boxes/all_bbox.csv')
 parser.add_argument('--checkpoint', type=str, default=None)
+parser.add_argument('--weights', type=str, default=None)
 parser.add_argument('--flush', type=int, choices=[0, 1], default=1)
 parser.add_argument('--log_path', type=str, default='./logs/')
 
@@ -122,6 +123,13 @@ def main():
                              dropout=args.dropout,
                              image_size=args.image_size,
                              archi=args.archi)
+
+        if args.weights is not None:
+            print('loading pre-trained weights and changing input size ...')
+            weights = torch.load(args.weights)
+            weights.pop('model.fc.weight')
+            weights.pop('model.fc.bias')
+            model.load_state_dict(weights, strict=False)
 
     model.to(device)
 
