@@ -120,12 +120,12 @@ def main():
     }
 
     if args.checkpoint is not None:
-        model = model_factory(**model_params)
+        model = model_factory.get_model(**model_params)
         weights = torch.load(args.checkpoint)
         model.load_state_dict(weights)
         print('loading saved model ...')
     else:
-        model = model_factory(**model_params)
+        model = model_factory.get_model(**model_params)
         if args.weights is not None:
             print('loading pre-trained weights and changing input size ...')
             weights = torch.load(args.weights)
