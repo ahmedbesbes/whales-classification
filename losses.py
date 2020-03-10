@@ -49,5 +49,4 @@ class TripletLoss(nn.Module):
         else:
             diff = torch.clamp(diff + self.margin, min=0.)
         loss = diff.mean()
-        loss += self.wd * (dist ** 2).mean()  # compactification term
         return loss
