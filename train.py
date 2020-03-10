@@ -18,8 +18,9 @@ from torch.utils.tensorboard import SummaryWriter
 
 from sklearn.metrics.pairwise import cosine_similarity
 
-from backbones.Resnet34 import FaceNetModel
-from backbones.InceptionResnet import InceptionResnetV1
+from backbones.resnet_models import ResNetModels
+from backbones.densenet_models import DenseNetModels
+from backbones import model_factory
 from dataloader import WhalesData, augmentation
 from sampler import PKSampler
 from utils import get_lr, log_experience, cyclical_lr
@@ -35,7 +36,7 @@ parser.add_argument(
     '--root-test', default='/data_science/computer_vision/whales/data/test_val/', type=str)
 
 parser.add_argument('--archi', default='resnet34',
-                    choices=['resnet18', 'resnet34', 'resnet50', 'resnet101'], type=str)
+                    choices=['resnet18', 'resnet34', 'resnet50', 'resnet101', 'densenet121'], type=str)
 parser.add_argument('--embedding-dim', type=int, default=256)
 parser.add_argument('--dropout', type=float, default=0.4)
 parser.add_argument('--pretrained', type=int, choices=[0, 1], default=1)
@@ -109,21 +110,22 @@ def main():
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
+    model_params = {
+        'embedding_size': args.embedding_dim,
+        'num_classes': num_classes,
+        'image_size': args.image_size,
+        'archi': args.archi,
+        'pretrained': bool(args.pretrained),
+        'dropout': args.dropout
+    }
+
     if args.checkpoint is not None:
-        model = FaceNetModel(args.embedding_dim,
-                             num_classes=num_classes,
-                             pretrained=bool(args.pretrained))
+        model = model_factory(**model_params)
         weights = torch.load(args.checkpoint)
         model.load_state_dict(weights)
         print('loading saved model ...')
     else:
-        model = FaceNetModel(args.embedding_dim,
-                             num_classes=num_classes,
-                             pretrained=bool(args.pretrained),
-                             dropout=args.dropout,
-                             image_size=args.image_size,
-                             archi=args.archi)
-
+        model = model_factory(**model_params)
         if args.weights is not None:
             print('loading pre-trained weights and changing input size ...')
             weights = torch.load(args.weights)

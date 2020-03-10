@@ -3,17 +3,17 @@ import torch.nn as nn
 from torchvision.models import resnet18, resnet34, resnet50, resnet101
 
 
-class FaceNetModel(nn.Module):
-    def __init__(self, embedding_size, num_classes, image_size=224, pretrained=False, dropout=0.4, archi='resnet18'):
-        super(FaceNetModel, self).__init__()
+class ResNetModels(nn.Module):
+    def __init__(self, embedding_size, num_classes, image_size, archi, pretrained=True, dropout=0.4):
+        super(ResNetModels, self).__init__()
 
-        if archi == 'resnet18':
+        if archi == "resnet18":
             self.model = resnet18(pretrained)
-        elif archi == 'resnet34':
+        elif archi == "resnet34":
             self.model = resnet34(pretrained)
-        elif archi == 'resnet50':
+        elif archi == "resnet50":
             self.model = resnet50(pretrained)
-        elif archi == 'resnet101':
+        elif archi == "resnet101":
             self.model = resnet101(pretrained)
 
         self.embedding_size = embedding_size
@@ -30,6 +30,7 @@ class FaceNetModel(nn.Module):
         norm = torch.sqrt(normp)
         _output = torch.div(input, norm.view(-1, 1).expand_as(input))
         output = _output.view(input_size)
+
         return output
 
     def forward(self, x):
