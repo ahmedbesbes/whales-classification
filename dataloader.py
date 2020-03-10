@@ -55,7 +55,7 @@ def augmentation(image_size, train=True):
             transforms.Lambda(lambda img: expand2square(img)),
             transforms.Resize((image_size, image_size)),
             # transforms.ColorJitter(brightness=0.2),
-            transforms.Grayscale(num_output_channels=3),
+            # transforms.Grayscale(num_output_channels=3),
             transforms.RandomRotation(10),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.5, 0.5, 0.5],
@@ -66,7 +66,7 @@ def augmentation(image_size, train=True):
             transforms.ToPILImage(),
             transforms.Lambda(lambda img: expand2square(img)),
             transforms.Resize((image_size, image_size)),
-            transforms.Grayscale(num_output_channels=3),
+            # transforms.Grayscale(num_output_channels=3),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.5, 0.5, 0.5],
                                  std=[0.5, 0.5, 0.5])
