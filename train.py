@@ -111,7 +111,7 @@ def main():
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
     model_params = {
-        'embedding_size': args.embedding_dim,
+        'embedding_dim': args.embedding_dim,
         'num_classes': num_classes,
         'image_size': args.image_size,
         'archi': args.archi,

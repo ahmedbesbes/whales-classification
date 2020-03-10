@@ -4,15 +4,15 @@ from torchvision.models import densenet121
 
 
 class DenseNetModels(nn.Module):
-    def __init__(self, embedding_size, num_classes, image_size, archi="densenet121", pretrained=True, dropout=0.4):
+    def __init__(self, embedding_dim, num_classes, image_size, archi="densenet121", pretrained=True, dropout=0.4):
         super(DenseNetModels, self).__init__()
         if archi == "densenet121":
             self.model = densenet121(pretrained=pretrained)
-        self.embedding_size = embedding_size
+        self.embedding_dim = embedding_dim
         self.output_conv = self._get_output_conv(
             (1, 3, image_size, image_size))
-        self.model.fc = nn.Linear(self.output_conv, self.embedding_size)
-        self.model.classifier = nn.Linear(self.embedding_size, num_classes)
+        self.model.fc = nn.Linear(self.output_conv, self.embedding_dim)
+        self.model.classifier = nn.Linear(self.embedding_dim, num_classes)
         self.dropout = nn.Dropout(p=dropout)
 
     def l2_norm(self, input):
