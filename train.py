@@ -155,7 +155,10 @@ def main():
                             sampler=sampler,
                             num_workers=args.num_workers)
 
-    criterion = TripletLoss(margin=args.margin, sample=False)
+    if args.margin == '-1':
+        criterion = TripletLoss(margin='soft', sample=False)
+    else:
+        criterion = TripletLoss(margin=args.margin, sample=False)
 
     if args.clr:
         print('using learning rate scheduling ...')
