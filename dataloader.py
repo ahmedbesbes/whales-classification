@@ -52,23 +52,21 @@ def augmentation(image_size, train=True):
     if train:
         data_transform = transforms.Compose([
             transforms.ToPILImage(),
-            transforms.Lambda(lambda img: expand2square(img)),
+            # transforms.Lambda(lambda img: expand2square(img)),
             transforms.Resize((image_size, image_size)),
-            # transforms.ColorJitter(brightness=0.2),
-            # transforms.Grayscale(num_output_channels=3),
             transforms.RandomRotation(10),
+            transforms.RandomPerspective(distortion_scale=0.1, p=0.3),
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                                 std=[0.5, 0.5, 0.5])
+            transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                 std=[0.229, 0.224, 0.225])
         ])
     else:
         data_transform = transforms.Compose([
             transforms.ToPILImage(),
-            transforms.Lambda(lambda img: expand2square(img)),
+            # transforms.Lambda(lambda img: expand2square(img)),
             transforms.Resize((image_size, image_size)),
-            # transforms.Grayscale(num_output_channels=3),
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                                 std=[0.5, 0.5, 0.5])
+            transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                 std=[0.229, 0.224, 0.225])
         ])
     return data_transform

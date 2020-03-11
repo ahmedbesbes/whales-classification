@@ -47,6 +47,7 @@ parser.add_argument('-p', type=int, default=8)
 parser.add_argument('-k', type=int, default=4)
 
 parser.add_argument('--lr', type=float, default=3e-4)
+parser.add_argument('--wd', type=float, default=0.01)
 parser.add_argument('--epochs', type=int, default=80)
 parser.add_argument('--batch-size', type=int, default=32)
 parser.add_argument('--num-workers', type=int, default=11)
@@ -158,14 +159,14 @@ def main():
 
     if args.clr:
         print('using learning rate scheduling ...')
-        optimizer = Adam(model.parameters(), lr=1)
+        optimizer = Adam(model.parameters(), lr=1, weight_decay=args.wd)
         step_size = int(len(dataloader) * args.step_size)
         clr = cyclical_lr(step_size,
                           args.min_lr,
                           args.max_lr)
         scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, [clr])
     else:
-        optimizer = Adam(model.parameters(), lr=args.lr)
+        optimizer = Adam(model.parameters(), lr=args.lr, weight_decay=args.wd)
         scheduler = MultiStepLR(optimizer,
                                 milestones=args.milestones,
                                 gamma=args.gamma)
