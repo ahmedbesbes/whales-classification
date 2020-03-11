@@ -155,7 +155,7 @@ def main():
                             sampler=sampler,
                             num_workers=args.num_workers)
 
-    if args.margin == '-1':
+    if args.margin == -1:
         criterion = TripletLoss(margin='soft', sample=False)
     else:
         criterion = TripletLoss(margin=args.margin, sample=False)
