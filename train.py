@@ -46,6 +46,7 @@ parser.add_argument('--image-size', type=int, default=224)
 parser.add_argument('--margin', type=float, default=0.2)
 parser.add_argument('-p', type=int, default=8)
 parser.add_argument('-k', type=int, default=4)
+parser.add_argument('--sample', type=int, default=0, choices=[0, 1])
 
 parser.add_argument('--lr', type=float, default=3e-4)
 parser.add_argument('--wd', type=float, default=0.01)
@@ -160,9 +161,9 @@ def main():
                             num_workers=args.num_workers)
 
     if args.margin == -1:
-        criterion = TripletLoss(margin='soft', sample=False)
+        criterion = TripletLoss(margin='soft', sample=bool(args.sample))
     else:
-        criterion = TripletLoss(margin=args.margin, sample=False)
+        criterion = TripletLoss(margin=args.margin, sample=bool(args.sample))
 
     if args.clr:
         print('using learning rate scheduling ...')
