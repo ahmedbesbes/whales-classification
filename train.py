@@ -133,6 +133,8 @@ def main():
             weights = torch.load(args.weights)
             weights.pop('model.fc.weight')
             weights.pop('model.fc.bias')
+            weights.pop('model.classifier.weight')
+            weights.pop('model.classifier.bias')
             model.load_state_dict(weights, strict=False)
 
     model.to(device)
