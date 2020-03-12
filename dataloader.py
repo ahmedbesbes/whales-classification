@@ -6,7 +6,7 @@ from utils import expand2square
 
 
 class WhalesData(Dataset):
-    def __init__(self, paths, bbox, mapping_label_id, transform, test=False):
+    def __init__(self, paths, bbox, mapping_label_id, transform, crop=False, test=False):
         self.paths = paths
         self.bbox = pd.read_csv(bbox)
         self.bbox.set_index('path', inplace=True)
@@ -14,6 +14,7 @@ class WhalesData(Dataset):
         self.mapping_label_id = mapping_label_id
         self.transform = transform
         self.test = test
+        self.crop = crop
 
     def __len__(self):
         return len(self.paths)
@@ -22,16 +23,18 @@ class WhalesData(Dataset):
         path = self.paths[i]
 
         img = io.imread(path)
-        if path in self.bbox:
-            x = int(self.bbox[path]['x'])
-            y = int(self.bbox[path]['y'])
-            w = int(self.bbox[path]['w'])
-            h = int(self.bbox[path]['h'])
-        else:
-            x, y = 0, 0
-            w = img.shape[1]
-            h = img.shape[0]
-        img = img[y:h, x:w, :]
+        if self.crop:
+            if path in self.bbox:
+                x = int(self.bbox[path]['x'])
+                y = int(self.bbox[path]['y'])
+                w = int(self.bbox[path]['w'])
+                h = int(self.bbox[path]['h'])
+            else:
+                x, y = 0, 0
+                w = img.shape[1]
+                h = img.shape[0]
+            img = img[y:h, x:w, :]
+
         img = self.transform(img)
 
         if self.test == False:

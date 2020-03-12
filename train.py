@@ -34,6 +34,7 @@ parser.add_argument(
     '--root', default='/data_science/computer_vision/whales/data/train/', type=str)
 parser.add_argument(
     '--root-test', default='/data_science/computer_vision/whales/data/test_val/', type=str)
+parser.add_argument('--crop', type=int, default=0, choices=[0, 1])
 
 parser.add_argument('--archi', default='resnet34',
                     choices=['resnet18', 'resnet34', 'resnet50', 'resnet101', 'densenet121'], type=str)
@@ -140,7 +141,8 @@ def main():
     dataset = WhalesData(paths=paths,
                          bbox=args.bbox_train,
                          mapping_label_id=mapping_label_id,
-                         transform=data_transform
+                         transform=data_transform,
+                         crop=bool(args.crop)
                          )
     sampler = PKSampler(root=args.root,
                         data_source=dataset,
@@ -264,6 +266,7 @@ def compute_predictions(model, mapping_label_id, time_id):
                                  args.bbox_all,
                                  mapping_label_id,
                                  data_transform_test,
+                                 crop=bool(args.crop),
                                  test=True)
 
     scoring_dataloader = DataLoader(scoring_dataset,
@@ -283,6 +286,7 @@ def compute_predictions(model, mapping_label_id, time_id):
                               args.bbox_test,
                               mapping_label_id,
                               data_transform_test,
+                              crop=bool(args.crop),
                               test=True)
     test_dataloader = DataLoader(test_dataset,
                                  shuffle=False,
