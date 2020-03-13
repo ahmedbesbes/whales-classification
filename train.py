@@ -49,7 +49,7 @@ parser.add_argument('-k', type=int, default=4)
 parser.add_argument('--sampler', type=int, default=1, choices=[1, 2])
 
 parser.add_argument('--lr', type=float, default=3e-4)
-parser.add_argument('--wd', type=float, default=0.01)
+parser.add_argument('--wd', type=float, default=0)
 parser.add_argument('--epochs', type=int, default=80)
 parser.add_argument('--batch-size', type=int, default=32)
 parser.add_argument('--num-workers', type=int, default=11)
