@@ -8,7 +8,8 @@ def get_model(embedding_dim,
               pretrained,
               dropout,
               image_size,
-              archi):
+              archi,
+              alpha):
 
     if archi.startswith('resnet'):
         model = ResNetModels(embedding_dim=embedding_dim,
@@ -16,7 +17,8 @@ def get_model(embedding_dim,
                              image_size=image_size,
                              archi=archi,
                              pretrained=pretrained,
-                             dropout=dropout)
+                             dropout=dropout,
+                             alpha=alpha)
 
     elif archi.startswith('densenet'):
         model = DenseNetModels(embedding_dim=embedding_dim,
@@ -24,13 +26,15 @@ def get_model(embedding_dim,
                                image_size=image_size,
                                archi=archi,
                                pretrained=pretrained,
-                               dropout=dropout)
+                               dropout=dropout,
+                               alpha=alpha)
     elif archi.startswith('mobilenet'):
         model = MobileNetModels(embedding_dim=embedding_dim,
                                 num_classes=num_classes,
                                 image_size=image_size,
                                 archi=archi,
                                 pretrained=pretrained,
-                                dropout=dropout)
+                                dropout=dropout,
+                                alpha=alpha)
 
     return model

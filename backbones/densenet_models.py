@@ -4,7 +4,7 @@ from torchvision.models import densenet121
 
 
 class DenseNetModels(nn.Module):
-    def __init__(self, embedding_dim, num_classes, image_size, archi="densenet121", pretrained=True, dropout=0.4):
+    def __init__(self, embedding_dim, num_classes, image_size, archi="densenet121", pretrained=True, dropout=0.4, alpha=10):
         super(DenseNetModels, self).__init__()
         if archi == "densenet121":
             self.model = densenet121(pretrained=pretrained)
@@ -14,6 +14,7 @@ class DenseNetModels(nn.Module):
         self.model.fc = nn.Linear(self.output_conv, self.embedding_dim)
         self.model.classifier = nn.Linear(self.embedding_dim, num_classes)
         self.dropout = nn.Dropout(p=dropout)
+        self.alpha = alpha
 
     def l2_norm(self, input):
         input_size = input.size()
@@ -31,8 +32,7 @@ class DenseNetModels(nn.Module):
         x = self.model.fc(x)
         self.features = self.l2_norm(x)
         # Multiply by alpha = 10 as suggested in https://arxiv.org/pdf/1703.09507.pdf
-        alpha = 10
-        self.features = self.features*alpha
+        self.features = self.features * self.alpha
         return self.features
 
     def forward_classifier(self, x):

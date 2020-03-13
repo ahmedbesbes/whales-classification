@@ -40,6 +40,7 @@ parser.add_argument('--archi', default='resnet34',
                     choices=['resnet18', 'resnet34', 'resnet50', 'resnet101', 'densenet121', 'mobilenet'], type=str)
 parser.add_argument('--embedding-dim', type=int, default=256)
 parser.add_argument('--dropout', type=float, default=0.4)
+parser.add_argument('--alpha', type=int, type=float, default=8)
 parser.add_argument('--pretrained', type=int, choices=[0, 1], default=1)
 parser.add_argument('--image-size', type=int, default=224)
 
@@ -119,7 +120,8 @@ def main():
         'image_size': args.image_size,
         'archi': args.archi,
         'pretrained': bool(args.pretrained),
-        'dropout': args.dropout
+        'dropout': args.dropout,
+        'alpha': args.alpha
     }
 
     if args.checkpoint is not None:

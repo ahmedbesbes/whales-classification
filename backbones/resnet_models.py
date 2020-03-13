@@ -4,7 +4,7 @@ from torchvision.models import resnet18, resnet34, resnet50, resnet101
 
 
 class ResNetModels(nn.Module):
-    def __init__(self, embedding_dim, num_classes, image_size, archi, pretrained=True, dropout=0.4):
+    def __init__(self, embedding_dim, num_classes, image_size, archi, pretrained=True, dropout=0.4, alpha=10):
         super(ResNetModels, self).__init__()
 
         if archi == "resnet18":
@@ -22,6 +22,7 @@ class ResNetModels(nn.Module):
         self.model.fc = nn.Linear(self.output_conv, self.embedding_dim)
         self.model.classifier = nn.Linear(self.embedding_dim, num_classes)
         self.dropout = nn.Dropout(p=dropout)
+        self.alpha = alpha
 
     def l2_norm(self, input):
         input_size = input.size()
@@ -48,8 +49,7 @@ class ResNetModels(nn.Module):
 
         self.features = self.l2_norm(x)
         # Multiply by alpha = 10 as suggested in https://arxiv.org/pdf/1703.09507.pdf
-        alpha = 10
-        self.features = self.features*alpha
+        self.features = self.features * self.alpha
 
         return self.features
 
