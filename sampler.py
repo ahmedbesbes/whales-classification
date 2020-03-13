@@ -66,7 +66,7 @@ class PKSampler2(Sampler):
                 samples = self.labels_to_samples[label]
                 replace = True if len(samples) < self.k else False
                 for s in np.random.choice(samples, self.k, replace=replace):
-                    path = f'{self.root}{l}/{s}'
+                    path = f'{self.root}{label}/{s}'
                     index = self.mapping_files_to_global_id[path]
                     yield index
 
