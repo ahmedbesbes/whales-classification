@@ -22,7 +22,7 @@ from backbones.resnet_models import ResNetModels
 from backbones.densenet_models import DenseNetModels
 from backbones import model_factory
 from dataloader import WhalesData, augmentation
-from sampler import PKSampler
+from sampler import PKSampler, PKSampler2
 from utils import get_lr, log_experience, cyclical_lr
 from losses import TripletLoss
 
@@ -46,7 +46,7 @@ parser.add_argument('--image-size', type=int, default=224)
 parser.add_argument('--margin', type=float, default=0.2)
 parser.add_argument('-p', type=int, default=8)
 parser.add_argument('-k', type=int, default=4)
-parser.add_argument('--sample', type=int, default=0, choices=[0, 1])
+parser.add_argument('--sampler', type=int, default=1, choices=[1, 2])
 
 parser.add_argument('--lr', type=float, default=3e-4)
 parser.add_argument('--wd', type=float, default=0.01)
@@ -147,13 +147,23 @@ def main():
                          transform=data_transform,
                          crop=bool(args.crop)
                          )
-    sampler = PKSampler(root=args.root,
-                        data_source=dataset,
-                        classes=classes,
-                        labels_to_samples=labels_to_samples,
-                        mapping_files_to_global_id=mapping_files_to_global_id,
-                        p=args.p,
-                        k=args.k)
+
+    if args.sampler == 1:
+        sampler = PKSampler(root=args.root,
+                            data_source=dataset,
+                            classes=classes,
+                            labels_to_samples=labels_to_samples,
+                            mapping_files_to_global_id=mapping_files_to_global_id,
+                            p=args.p,
+                            k=args.k)
+    elif args.sampler == 2:
+        sampler = PKSampler2(root=args.root,
+                             data_source=dataset,
+                             classes=classes,
+                             labels_to_samples=labels_to_samples,
+                             mapping_files_to_global_id=mapping_files_to_global_id,
+                             p=args.p,
+                             k=args.k)
 
     dataloader = DataLoader(dataset,
                             batch_size=args.p*args.k,
@@ -161,9 +171,9 @@ def main():
                             num_workers=args.num_workers)
 
     if args.margin == -1:
-        criterion = TripletLoss(margin='soft', sample=bool(args.sample))
+        criterion = TripletLoss(margin='soft', sample=False)
     else:
-        criterion = TripletLoss(margin=args.margin, sample=bool(args.sample))
+        criterion = TripletLoss(margin=args.margin, sample=False)
 
     if args.clr:
         print('using learning rate scheduling ...')
@@ -174,7 +184,8 @@ def main():
                           args.max_lr)
         scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, [clr])
     else:
-        optimizer = Adam(model.parameters(), lr=args.lr, weight_decay=args.wd)
+        optimizer = Adam(model.parameters(), lr=args.lr,
+                         weight_decay=args.wd)
         scheduler = MultiStepLR(optimizer,
                                 milestones=args.milestones,
                                 gamma=args.gamma)
