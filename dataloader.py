@@ -3,6 +3,8 @@ from skimage import io
 from torch.utils.data import Dataset
 from torchvision import transforms
 from utils import expand2square
+import albumentations as A
+import albumentations.pytorch as AT
 
 
 class WhalesData(Dataset):
@@ -35,7 +37,10 @@ class WhalesData(Dataset):
                 h = img.shape[0]
             img = img[y:h, x:w, :]
 
-        img = self.transform(img)
+        if type(self.transform) == A.core.composition.Compose:
+            img = self.transform(image=img)['image']
+        else:
+            img = self.transform(img)
 
         if self.test == False:
             folder = path.split('/')[-2]
@@ -53,15 +58,31 @@ class WhalesData(Dataset):
 
 def augmentation(image_size, train=True):
     if train:
-        data_transform = transforms.Compose([
-            transforms.ToPILImage(),
-            # transforms.Lambda(lambda img: expand2square(img)),
-            transforms.Resize((image_size, image_size)),
-            transforms.RandomRotation(10),
-            # transforms.RandomPerspective(distortion_scale=0.1, p=0.3),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                 std=[0.229, 0.224, 0.225])
+        # data_transform = transforms.Compose([
+        #     transforms.ToPILImage(),
+        #     # transforms.Lambda(lambda img: expand2square(img)),
+        #     transforms.Resize((image_size, image_size)),
+        #     transforms.RandomRotation(10),
+        #     # transforms.RandomPerspective(distortion_scale=0.1, p=0.3),
+        #     transforms.ToTensor(),
+        #     transforms.Normalize(mean=[0.485, 0.456, 0.406],
+        #                          std=[0.229, 0.224, 0.225])
+        # ])
+
+        data_transform = A.Compose([
+            A.OneOf([
+                A.GaussNoise(mean=10),
+                A.GaussianBlur(blur_limit=10)
+            ]),
+            A.IAAPerspective(scale=(0.1, 0.01)),
+            A.RandomBrightnessContrast(
+                brightness_limit=0.1, contrast_limit=0.1),
+            A.HueSaturationValue(hue_shift_limit=10),
+            A.IAAAffine(scale=1, translate_px=10, rotate=10, shear=1),
+            A.Resize(image_size, image_size),
+            A.Normalize(mean=[0.485, 0.456, 0.406],
+                        std=[0.229, 0.224, 0.225]),
+            AT.ToTensor()
         ])
     else:
         data_transform = transforms.Compose([
