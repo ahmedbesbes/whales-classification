@@ -34,7 +34,7 @@ parser.add_argument(
     '--root', default='/data_science/computer_vision/whales/data/train/', type=str)
 parser.add_argument(
     '--root-test', default='/data_science/computer_vision/whales/data/test_val/', type=str)
-parser.add_argument('--crop', type=int, default=0, choices=[0, 1])
+parser.add_argument('--crop', type=int, default=1, choices=[0, 1])
 
 parser.add_argument('--archi', default='resnet34',
                     choices=['resnet18', 'resnet34', 'resnet50', 'resnet101', 'densenet121', 'mobilenet'], type=str)
