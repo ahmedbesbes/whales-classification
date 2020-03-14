@@ -53,7 +53,7 @@ parser.add_argument('--lr', type=float, default=3e-4)
 parser.add_argument('--wd', type=float, default=0)
 parser.add_argument('--epochs', type=int, default=80)
 parser.add_argument('--batch-size', type=int, default=32)
-parser.add_argument('--num-workers', type=int, default=11)
+parser.add_argument('--num-workers', type=int, default=12)
 parser.add_argument('--gamma', type=float, default=0.1)
 parser.add_argument('--milestones', nargs='+', type=int)
 
