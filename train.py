@@ -45,7 +45,7 @@ parser.add_argument('--pretrained', type=int, choices=[0, 1], default=1)
 parser.add_argument('--image-size', type=int, default=224)
 
 parser.add_argument('--margin', type=float, default=0.2)
-parser.add_argument('-p', type=int, default=8)
+parser.add_argument('-p', type=int, default=16)
 parser.add_argument('-k', type=int, default=4)
 parser.add_argument('--sampler', type=int, default=1, choices=[1, 2])
 
