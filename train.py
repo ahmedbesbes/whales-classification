@@ -171,6 +171,7 @@ def main():
     dataloader = DataLoader(dataset,
                             batch_size=args.p*args.k,
                             sampler=sampler,
+                            drop_last=True,
                             num_workers=args.num_workers)
 
     if args.margin == -1:
