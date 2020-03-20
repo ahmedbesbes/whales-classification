@@ -191,7 +191,7 @@ def main():
                          weight_decay=args.wd)
 
         if args.weights is not None:
-            optimizer.load_state_dict(torch.load(args.weights)[optimizer])
+            optimizer.load_state_dict(torch.load(args.weights)['optimizer'])
 
         scheduler = MultiStepLR(optimizer,
                                 milestones=args.milestones,
