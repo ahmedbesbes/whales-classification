@@ -201,7 +201,7 @@ def main():
 
     model.train()
 
-    for epoch in tqdm(range(args.start_epoch, args.epochs)):
+    for epoch in tqdm(range(args.start_epoch, args.epochs + args.start_epoch)):
         params = {
             'model': model,
             'dataloader': dataloader,
