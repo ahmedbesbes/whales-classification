@@ -301,7 +301,7 @@ def compute_predictions(model, mapping_label_id, time_id):
     scoring_dataloader = DataLoader(scoring_dataset,
                                     shuffle=False,
                                     num_workers=10,
-                                    batch_size=32)
+                                    batch_size=64)
 
     embeddings = []
     for batch in tqdm(scoring_dataloader, total=len(scoring_dataloader)):
@@ -319,7 +319,7 @@ def compute_predictions(model, mapping_label_id, time_id):
                               test=True)
     test_dataloader = DataLoader(test_dataset,
                                  shuffle=False,
-                                 batch_size=32)
+                                 batch_size=64)
 
     test_embeddings = []
     for batch in tqdm(test_dataloader, total=len(test_dataloader)):
