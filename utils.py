@@ -12,6 +12,11 @@ def get_lr(optimizer):
         return param_group['lr']
 
 
+def set_lr(optimizer, lr):
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+
+
 def expand2square(pil_img):
     background_color = (0, 0, 0)
     width, height = pil_img.size

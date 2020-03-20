@@ -23,7 +23,7 @@ from backbones.densenet_models import DenseNetModels
 from backbones import model_factory
 from dataloader import WhalesData, augmentation
 from sampler import PKSampler, PKSampler2
-from utils import get_lr, log_experience, cyclical_lr
+from utils import get_lr, set_lr, log_experience, cyclical_lr
 from losses import TripletLoss
 
 parser = argparse.ArgumentParser()
@@ -192,6 +192,7 @@ def main():
 
         if args.weights is not None:
             optimizer.load_state_dict(torch.load(args.weights)['optimizer'])
+            set_lr(optimizer, args.lr)
 
         scheduler = MultiStepLR(optimizer,
                                 milestones=args.milestones,
