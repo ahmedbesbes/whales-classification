@@ -188,12 +188,7 @@ def main():
                           args.max_lr)
         scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, [clr])
     else:
-        optimizer = Adam(model.parameters(), lr=args.lr,
-                         weight_decay=args.wd)
-
-        if args.weights is not None:
-            optimizer.load_state_dict(torch.load(args.weights)['optimizer'])
-            set_lr(optimizer, args.lr)
+        optimizer = Adam(model.parameters(), lr=args.lr, weight_decay=args.wd)
 
         scheduler = MultiStepLR(optimizer,
                                 milestones=args.milestones,
@@ -221,11 +216,10 @@ def main():
 
     state = {
         'state_dict': model.state_dict(),
-        'optimizer': optimizer.state_dict()
     }
     torch.save(state,
                os.path.join(args.output,
-                            f'{time_id}_pth'))
+                            f'{time_id}.pth'))
 
     compute_predictions(model, mapping_label_id, time_id)
 
@@ -269,8 +263,7 @@ def train(model, dataloader, optimizer, criterion, logging_step, epoch, epochs, 
 
     if (args.checkpoint_period != -1) & (args.checkpoint_period % (epoch+1) == 0):
         state = {
-            'state_dict': model.state_dict(),
-            'optimizer': optimizer.state_dict()
+            'state_dict': model.state_dict()
         }
         torch.save(state,
                    os.path.join(args.output,
