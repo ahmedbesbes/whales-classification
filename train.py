@@ -279,7 +279,7 @@ def train(model, dataloader, optimizer, criterion, logging_step, epoch, epochs, 
 
 def compute_predictions(model, mapping_label_id, time_id):
     model.eval()
-    print("generating predictions ...")
+    print("generating predictions ......")
     db = []
     train_folder = os.path.join(args.root)
     for c in os.listdir(train_folder):
