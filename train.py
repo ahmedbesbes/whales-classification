@@ -53,6 +53,7 @@ parser.add_argument('--sampler', type=int, default=1, choices=[1, 2])
 parser.add_argument('--lr', type=float, default=3e-4)
 parser.add_argument('--wd', type=float, default=0)
 parser.add_argument('--epochs', type=int, default=80)
+parser.add_argument('--start-epoch', type=int, default=0)
 parser.add_argument('--batch-size', type=int, default=32)
 parser.add_argument('--num-workers', type=int, default=12)
 parser.add_argument('--gamma', type=float, default=0.1)
@@ -200,7 +201,7 @@ def main():
 
     model.train()
 
-    for epoch in tqdm(range(args.epochs)):
+    for epoch in tqdm(range(args.start_epoch, args.epochs)):
         params = {
             'model': model,
             'dataloader': dataloader,
