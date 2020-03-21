@@ -135,7 +135,11 @@ def main():
         model = model_factory.get_model(**model_params)
         if args.weights is not None:
             print('loading pre-trained weights and changing input size ...')
-            weights = torch.load(args.weights)
+            try:
+                weights = torch.load(args.weights)
+            except:
+                weights = torch.load(args.weights)['state_dict']
+
             weights.pop('model.fc.weight')
             weights.pop('model.fc.bias')
             try:
