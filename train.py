@@ -311,6 +311,7 @@ def compute_predictions(model, mapping_label_id, time_id):
             embedding = embedding.cpu().detach().numpy()
             embeddings.append(embedding)
     embeddings = np.concatenate(embeddings)
+    np.save(f'./embeddings/embeddings_{time_id}.npy', embeddings)
 
     test_dataset = WhalesData(test_db,
                               args.bbox_test,
@@ -330,6 +331,7 @@ def compute_predictions(model, mapping_label_id, time_id):
             test_embeddings.append(embedding)
 
     test_embeddings = np.concatenate(test_embeddings)
+    np.save(f'./embeddings/embeddings_test_{time_id}.npy', test_embeddings)
 
     csm = cosine_similarity(test_embeddings, embeddings)
     all_indices = []
