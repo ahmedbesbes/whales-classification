@@ -1,4 +1,4 @@
-from backbones.resnet_models import ResNetModels
+from backbones.resnet_models_gap import ResNetModels
 from backbones.densenet_models import DenseNetModels
 from backbones.mobilenet_models import MobileNetModels
 from backbones.efficientnet_models import EfficientNetModels
