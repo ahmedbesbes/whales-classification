@@ -11,7 +11,7 @@ class WhalesData(Dataset):
     def __init__(self, paths, bbox, mapping_label_id, transform, crop=False, test=False):
         self.paths = paths
         self.bbox = pd.read_csv(bbox)
-        self.bbox.set_index('path', inplace=True)
+        self.bbox.set_index('new_path', inplace=True)
         self.bbox = self.bbox.to_dict(orient='index')
         self.mapping_label_id = mapping_label_id
         self.transform = transform
