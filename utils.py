@@ -47,10 +47,10 @@ def log_experience(args):
     output_folder = f'./output/{time_id}_{args.tag}/'
     os.makedirs(output_folder)
 
-    with open(os.path.join(args.logs_experiences, f'{time_id}.json'), 'w') as f:
-        f.write(simplejson.dumps(simplejson.loads(
-            json.dumps(arguments)), indent=4, sort_keys=True))
-        # json.dump(arguments, f)
+    # with open(os.path.join(args.logs_experiences, f'{time_id}.json'), 'w') as f:
+    #     f.write(simplejson.dumps(simplejson.loads(
+    #         json.dumps(arguments)), indent=4, sort_keys=True))
+    #     # json.dump(arguments, f)
 
     with open(os.path.join(output_folder, f'{time_id}.json'), 'w') as f:
         f.write(simplejson.dumps(simplejson.loads(
