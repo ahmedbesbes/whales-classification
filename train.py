@@ -314,7 +314,7 @@ def compute_predictions(model, mapping_label_id, time_id, output_folder):
 
     scoring_dataloader = DataLoader(scoring_dataset,
                                     shuffle=False,
-                                    num_workers=10,
+                                    num_workers=11,
                                     batch_size=64)
 
     embeddings = []
@@ -336,6 +336,7 @@ def compute_predictions(model, mapping_label_id, time_id, output_folder):
                               crop=bool(args.crop),
                               test=True)
     test_dataloader = DataLoader(test_dataset,
+                                 num_workers=11,
                                  shuffle=False,
                                  batch_size=64)
 
