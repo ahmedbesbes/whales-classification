@@ -37,7 +37,9 @@ parser.add_argument(
 parser.add_argument('--crop', type=int, default=1, choices=[0, 1])
 
 parser.add_argument('--archi', default='resnet34',
-                    choices=['resnet18', 'resnet34', 'resnet50', 'resnet101', 'densenet121', 'mobilenet',
+                    choices=['resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnext',
+                             'densenet121',
+                             'mobilenet',
                              'b0', 'b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7'], type=str)
 parser.add_argument('--embedding-dim', type=int, default=256)
 parser.add_argument('--dropout', type=float, default=0.4)

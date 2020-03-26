@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from torchvision.models import resnet18, resnet34, resnet50, resnet101
+from torchvision.models import resnet18, resnet34, resnet50, resnet101, resnext50_32x4d
 
 
 class ResNetModels(nn.Module):
@@ -14,6 +14,8 @@ class ResNetModels(nn.Module):
             self.model = resnet50(pretrained)
         elif archi == "resnet101":
             self.model = resnet101(pretrained)
+        elif archi == "resnext":
+            self.model = resnext50_32x4d(pretrained)
 
         self.gap = gap
         self.pooling_layer = nn.AdaptiveAvgPool2d(1)
