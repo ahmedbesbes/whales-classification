@@ -4,7 +4,7 @@ from efficientnet_pytorch import EfficientNet
 
 
 class EfficientNetModels(nn.Module):
-    def __init__(self, embedding_dim, num_classes, image_size, archi="b0", pretrained=True, dropout=0.4, alpha=10):
+    def __init__(self, embedding_dim, num_classes, image_size, archi="b0", pretrained=True, dropout=0.4, alpha=10, gap=1):
         super(EfficientNetModels, self).__init__()
         assert archi in ['b0', 'b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7']
 

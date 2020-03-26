@@ -4,7 +4,7 @@ from torchvision.models import densenet121
 
 
 class DenseNetModels(nn.Module):
-    def __init__(self, embedding_dim, num_classes, image_size, archi="densenet121", pretrained=True, dropout=0.4, alpha=10):
+    def __init__(self, embedding_dim, num_classes, image_size, archi="densenet121", pretrained=True, dropout=0.4, alpha=10, gap=1):
         super(DenseNetModels, self).__init__()
         if archi == "densenet121":
             self.model = densenet121(pretrained=pretrained)

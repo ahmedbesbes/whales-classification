@@ -45,6 +45,7 @@ parser.add_argument('--alpha', type=int, default=8)
 parser.add_argument('--pretrained', type=int, choices=[0, 1], default=1)
 parser.add_argument('--image-size', type=int, default=224)
 parser.add_argument('--freeze', type=int, default=0, choices=[0, 1, 2])
+parser.add_argument('--gap', type=int, choices=[0, 1], default=1)
 
 parser.add_argument('--margin', type=float, default=0.2)
 parser.add_argument('-p', type=int, default=16)
@@ -125,7 +126,8 @@ def main():
         'archi': args.archi,
         'pretrained': bool(args.pretrained),
         'dropout': args.dropout,
-        'alpha': args.alpha
+        'alpha': args.alpha,
+        'gap': args.gap
     }
 
     if args.checkpoint is not None:
