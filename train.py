@@ -76,6 +76,7 @@ parser.add_argument('--checkpoint', type=str, default=None)
 parser.add_argument('--weights', type=str, default=None)
 parser.add_argument('--flush', type=int, choices=[0, 1], default=1)
 parser.add_argument('--log_path', type=str, default='./logs/')
+parser.add_argument('--tag', type=str, default='')
 
 parser.add_argument('--checkpoint-period', type=int, default=-1)
 
@@ -103,7 +104,7 @@ def main():
     os.makedirs(logdir)
     writer = SummaryWriter(logdir)
 
-    time_id = log_experience(args)
+    time_id, output_folder = log_experience(args)
 
     data = pd.read_csv(args.data)
     classes = data.folder.unique()
@@ -224,7 +225,8 @@ def main():
             'epochs': args.epochs,
             'writer': writer,
             'time_id': time_id,
-            'scheduler': scheduler
+            'scheduler': scheduler,
+            'output_folder': output_folder
         }
         _ = train(**params)
 
@@ -235,13 +237,13 @@ def main():
         'state_dict': model.state_dict(),
     }
     torch.save(state,
-               os.path.join(args.output,
+               os.path.join(output_folder,
                             f'{time_id}.pth'))
 
-    compute_predictions(model, mapping_label_id, time_id)
+    compute_predictions(model, mapping_label_id, time_id, output_folder)
 
 
-def train(model, dataloader, optimizer, criterion, logging_step, epoch, epochs, writer, time_id, scheduler):
+def train(model, dataloader, optimizer, criterion, logging_step, epoch, epochs, writer, time_id, output_folder, scheduler):
     current_lr = get_lr(optimizer)
     losses = []
 
@@ -283,13 +285,13 @@ def train(model, dataloader, optimizer, criterion, logging_step, epoch, epochs, 
             'state_dict': model.state_dict()
         }
         torch.save(state,
-                   os.path.join(args.output,
+                   os.path.join(output_folder,
                                 f'{time_id}_pth'))
 
     return average_loss
 
 
-def compute_predictions(model, mapping_label_id, time_id):
+def compute_predictions(model, mapping_label_id, time_id, output_folder):
     model.eval()
     print("generating predictions ......")
     db = []
@@ -322,7 +324,10 @@ def compute_predictions(model, mapping_label_id, time_id):
             embedding = embedding.cpu().detach().numpy()
             embeddings.append(embedding)
     embeddings = np.concatenate(embeddings)
-    np.save(f'./embeddings/embeddings_{time_id}.npy', embeddings)
+
+    np.save(os.path.join(output_folder,
+                         f'embeddings_{time_id}.npy'),
+            embeddings)
 
     test_dataset = WhalesData(test_db,
                               args.bbox_test,
@@ -342,7 +347,10 @@ def compute_predictions(model, mapping_label_id, time_id):
             test_embeddings.append(embedding)
 
     test_embeddings = np.concatenate(test_embeddings)
-    np.save(f'./embeddings/embeddings_test_{time_id}.npy', test_embeddings)
+
+    np.save(os.path.join(output_folder,
+                         f'embeddings_test_{time_id}.npy'),
+            test_embeddings)
 
     csm = cosine_similarity(test_embeddings, embeddings)
     all_indices = []

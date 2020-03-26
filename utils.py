@@ -37,15 +37,22 @@ def log_experience(args):
     time_id = str(datetime.now())
     arguments['date'] = time_id
     arguments['leaderboard_score'] = None
+    arguments['tag'] = args.tag
 
     print('logging these arguments for the experience ...')
     pprint(arguments)
     print('----')
 
+    output_folder = f'./output/{time_id}_{args.tag}/'
+    os.makedirs(output_folder)
+
     with open(os.path.join(args.logs_experiences, f'{time_id}.json'), 'w') as f:
         json.dump(arguments, f)
 
-    return time_id
+    with open(os.path.join(output_folder, f'{time_id}.json'), 'w') as f:
+        json.dump(arguments, f)
+
+    return time_id, output_folder
 
 
 def cyclical_lr(stepsize, min_lr=3e-4, max_lr=3e-3):
