@@ -49,12 +49,12 @@ def log_experience(args):
 
     with open(os.path.join(args.logs_experiences, f'{time_id}.json'), 'w') as f:
         f.write(simplejson.dumps(simplejson.loads(
-            json.dumps(arguments)), intend=4, sort_keys=True))
+            json.dumps(arguments)), indent=4, sort_keys=True))
         # json.dump(arguments, f)
 
     with open(os.path.join(output_folder, f'{time_id}.json'), 'w') as f:
         f.write(simplejson.dumps(simplejson.loads(
-            json.dumps(arguments)), intend=4, sort_keys=True))
+            json.dumps(arguments)), indent=4, sort_keys=True))
         # json.dump(arguments, f)
 
     return time_id, output_folder
