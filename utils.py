@@ -1,6 +1,7 @@
 import math
 import os
 import json
+import simplejson
 from datetime import datetime
 from pprint import pprint
 import pandas as pd
@@ -47,10 +48,14 @@ def log_experience(args):
     os.makedirs(output_folder)
 
     with open(os.path.join(args.logs_experiences, f'{time_id}.json'), 'w') as f:
-        json.dump(arguments, f)
+        f.write(simplejson.dumps(simplejson.loads(
+            arguments), intend=4, sort_keys=True))
+        # json.dump(arguments, f)
 
     with open(os.path.join(output_folder, f'{time_id}.json'), 'w') as f:
-        json.dump(arguments, f)
+        f.write(simplejson.dumps(simplejson.loads(
+            arguments), intend=4, sort_keys=True))
+        # json.dump(arguments, f)
 
     return time_id, output_folder
 
