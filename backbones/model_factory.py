@@ -13,8 +13,7 @@ def get_model(embedding_dim,
               alpha,
               gap):
 
-    if archi.startswith('resnet'):
-
+    if archi.startswith('resnet') | archi.startswith('resnext'):
         model = ResNetModels(embedding_dim=embedding_dim,
                              num_classes=num_classes,
                              image_size=image_size,
