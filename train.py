@@ -382,7 +382,7 @@ def compute_predictions(model, mapping_label_id, time_id, output_folder):
     submission = submission[range(21)]
 
     submission.to_csv(os.path.join(
-        args.submissions, f'{time_id}.csv'), header=None, sep=',', index=False)
+        output_folder, f'{time_id}.csv'), header=None, sep=',', index=False)
     print("predictions generated...")
 
 
