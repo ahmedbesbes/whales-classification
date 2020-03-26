@@ -9,12 +9,12 @@ class MobileNetModels(nn.Module):
         if archi == "mobilenet":
             self.model = mobilenet_v2(pretrained=pretrained)
         self.embedding_dim = embedding_dim
+        self.gap = gap
         self.output_conv = self._get_output_conv(
             (1, 3, image_size, image_size))
         self.model.fc = nn.Linear(self.output_conv, self.embedding_dim)
         self.dropout = nn.Dropout(p=dropout)
         self.alpha = alpha
-        self.gap = gap
         self.pooling_layer = nn.AdaptiveAvgPool2d(1)
 
     def l2_norm(self, input):

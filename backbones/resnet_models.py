@@ -15,6 +15,7 @@ class ResNetModels(nn.Module):
         elif archi == "resnet101":
             self.model = resnet101(pretrained)
 
+        self.gap = gap
         self.pooling_layer = nn.AdaptiveAvgPool2d(1)
         self.embedding_dim = embedding_dim
         self.output_conv = self._get_output_conv(
@@ -22,7 +23,6 @@ class ResNetModels(nn.Module):
         self.model.fc = nn.Linear(self.output_conv, self.embedding_dim)
         self.dropout = nn.Dropout(p=dropout)
         self.alpha = alpha
-        self.gap = gap
 
     def l2_norm(self, input):
         input_size = input.size()
