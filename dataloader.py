@@ -56,38 +56,54 @@ class WhalesData(Dataset):
         return sample
 
 
-def augmentation(image_size, train=True):
+def augmentation(image_size, train=True, heavy=False):
     if train:
-        # data_transform = transforms.Compose([
-        #     transforms.ToPILImage(),
-        #     # transforms.Lambda(lambda img: expand2square(img)),
-        #     transforms.Resize((image_size, image_size)),
-        #     transforms.RandomRotation(10),
-        #     # transforms.RandomPerspective(distortion_scale=0.1, p=0.3),
-        #     transforms.ToTensor(),
-        #     transforms.Normalize(mean=[0.485, 0.456, 0.406],
-        #                          std=[0.229, 0.224, 0.225])
-        # ])
+        if heavy:
+            data_transform = A.Compose([
+                A.OneOf([
+                    A.GaussNoise(mean=10),
+                    A.GaussianBlur(blur_limit=10)
+                ]),
+                A.IAAPerspective(scale=(0.1, 0.01)),
+                A.RandomBrightnessContrast(
+                    brightness_limit=0.1, contrast_limit=0.1),
+                A.HueSaturationValue(hue_shift_limit=10),
+                A.IAAAffine(scale=1, translate_px=10, rotate=10, shear=1),
+                A.Resize(image_size, image_size),
+                A.Normalize(mean=[0.485, 0.456, 0.406],
+                            std=[0.229, 0.224, 0.225]),
+                AT.ToTensor()
+            ])
+        else:
+            data_transform = A.Compose([
+                A.OneOf([
+                    A.RandomRain(),
+                    A.GaussNoise(mean=25),
+                    A.GaussianBlur(blur_limit=20),
+                    A.MotionBlur(10)
+                ]),
 
-        data_transform = A.Compose([
-            A.OneOf([
-                A.GaussNoise(mean=10),
-                A.GaussianBlur(blur_limit=10)
-            ]),
-            A.IAAPerspective(scale=(0.1, 0.01)),
-            A.RandomBrightnessContrast(
-                brightness_limit=0.1, contrast_limit=0.1),
-            A.HueSaturationValue(hue_shift_limit=10),
-            A.IAAAffine(scale=1, translate_px=10, rotate=10, shear=1),
-            A.Resize(image_size, image_size),
-            A.Normalize(mean=[0.485, 0.456, 0.406],
-                        std=[0.229, 0.224, 0.225]),
-            AT.ToTensor()
-        ])
+                A.OneOf([
+                    A.RGBShift(p=1.0, r_shift_limit=(-5, 5),
+                               g_shift_limit=(-10, 10), b_shift_limit=(-10, 10)),
+                    A.RandomBrightnessContrast(
+                        brightness_limit=0.3, contrast_limit=0.1, p=1),
+                    A.HueSaturationValue(hue_shift_limit=20, p=1),
+                ]),
+
+                A.IAAPerspective(p=0.3),
+                A.IAAAffine(scale=0.9, translate_px=15,
+                            rotate=15, shear=0.2, p=1),
+
+                A.Resize(image_size, image_size),
+                A.Normalize(mean=[0.485, 0.456, 0.406],
+                            std=[0.229, 0.224, 0.225]),
+                AT.ToTensor()
+            ])
+
     else:
         data_transform = transforms.Compose([
             transforms.ToPILImage(),
-            # transforms.Lambda(lambda img: expand2square(img)),
             transforms.Resize((image_size, image_size)),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406],

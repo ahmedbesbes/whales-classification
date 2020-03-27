@@ -48,6 +48,7 @@ parser.add_argument('--pretrained', type=int, choices=[0, 1], default=1)
 parser.add_argument('--image-size', type=int, default=224)
 parser.add_argument('--freeze', type=int, default=0, choices=[0, 1, 2])
 parser.add_argument('--gap', type=int, choices=[0, 1], default=1)
+parser.add_argument('--heavy', type=int, choices=[0, 1], default=0)
 
 parser.add_argument('--margin', type=float, default=0.2)
 parser.add_argument('-p', type=int, default=16)
@@ -166,7 +167,9 @@ def main():
         for param in model.model.layer2.parameters():
             param.requires_grad = False
 
-    data_transform = augmentation(args.image_size, train=True)
+    data_transform = augmentation(args.image_size,
+                                  train=True,
+                                  heavy=bool(args.heavy))
     dataset = WhalesData(paths=paths,
                          bbox=args.bbox_train,
                          mapping_label_id=mapping_label_id,
