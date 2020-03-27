@@ -61,22 +61,6 @@ def augmentation(image_size, train=True, heavy=False):
         if heavy:
             data_transform = A.Compose([
                 A.OneOf([
-                    A.GaussNoise(mean=10),
-                    A.GaussianBlur(blur_limit=10)
-                ]),
-                A.IAAPerspective(scale=(0.1, 0.01)),
-                A.RandomBrightnessContrast(
-                    brightness_limit=0.1, contrast_limit=0.1),
-                A.HueSaturationValue(hue_shift_limit=10),
-                A.IAAAffine(scale=1, translate_px=10, rotate=10, shear=1),
-                A.Resize(image_size, image_size),
-                A.Normalize(mean=[0.485, 0.456, 0.406],
-                            std=[0.229, 0.224, 0.225]),
-                AT.ToTensor()
-            ])
-        else:
-            data_transform = A.Compose([
-                A.OneOf([
                     A.RandomRain(),
                     A.GaussNoise(mean=25),
                     A.GaussianBlur(blur_limit=20),
@@ -95,6 +79,22 @@ def augmentation(image_size, train=True, heavy=False):
                 A.IAAAffine(scale=0.9, translate_px=15,
                             rotate=15, shear=0.2, p=1),
 
+                A.Resize(image_size, image_size),
+                A.Normalize(mean=[0.485, 0.456, 0.406],
+                            std=[0.229, 0.224, 0.225]),
+                AT.ToTensor()
+            ])
+        else:
+            data_transform = A.Compose([
+                A.OneOf([
+                    A.GaussNoise(mean=10),
+                    A.GaussianBlur(blur_limit=10)
+                ]),
+                A.IAAPerspective(scale=(0.1, 0.01)),
+                A.RandomBrightnessContrast(
+                    brightness_limit=0.1, contrast_limit=0.1),
+                A.HueSaturationValue(hue_shift_limit=10),
+                A.IAAAffine(scale=1, translate_px=10, rotate=10, shear=1),
                 A.Resize(image_size, image_size),
                 A.Normalize(mean=[0.485, 0.456, 0.406],
                             std=[0.229, 0.224, 0.225]),
