@@ -75,9 +75,15 @@ def augmentation(image_size, train=True, heavy=False):
                     A.HueSaturationValue(hue_shift_limit=20, p=1),
                 ]),
 
-                A.IAAPerspective(p=0.3),
-                A.IAAAffine(scale=0.9, translate_px=15,
-                            rotate=15, shear=0.2, p=1),
+                A.IAAPerspective(p=0.2),
+
+                A.Cutout(max_h_size=30, max_w_size=30, p=0.2),
+
+                A.IAAAffine(scale=0.9,
+                            translate_px=15,
+                            rotate=15,
+                            shear=0.2,
+                            p=1),
 
                 A.Resize(image_size, image_size),
                 A.Normalize(mean=[0.485, 0.456, 0.406],
