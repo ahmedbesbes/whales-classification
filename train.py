@@ -81,6 +81,8 @@ parser.add_argument('--weights', type=str, default=None)
 parser.add_argument('--flush', type=int, choices=[0, 1], default=1)
 parser.add_argument('--log_path', type=str, default='./logs/')
 parser.add_argument('--tag', type=str, default='')
+parser.add_argument('--save-optim', type=int, default=0, choices=[0, 1])
+parser.add_argument('--load-optim', type=int, default=0, choices=[0, 1])
 
 parser.add_argument('--checkpoint-period', type=int, default=-1)
 
@@ -213,7 +215,12 @@ def main():
                           args.max_lr)
         scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, [clr])
     else:
-        optimizer = Adam(model.parameters(), lr=args.lr, weight_decay=args.wd)
+        if (args.weights is not None) & (bool(args.load_optim)):
+            optimizer = torch.load(args.weights)['optimizer']
+        else:
+            optimizer = Adam(model.parameters(),
+                             lr=args.lr,
+                             weight_decay=args.wd)
 
         scheduler = MultiStepLR(optimizer,
                                 milestones=args.milestones,
@@ -240,9 +247,15 @@ def main():
         if not args.clr:
             scheduler.step()
 
-    state = {
-        'state_dict': model.state_dict(),
-    }
+    if bool(args.save_optim):
+        state = {
+            'state_dict': model.state_dict(),
+            'optimizer': optimizer.state_dict()
+        }
+    else:
+        state = {
+            'state_dict': model.state_dict()
+        }
     torch.save(state,
                os.path.join(output_folder,
                             f'{time_id}.pth'))
@@ -288,9 +301,17 @@ def train(model, dataloader, optimizer, criterion, logging_step, epoch, epochs, 
                       )
 
     if (args.checkpoint_period != -1) & (args.checkpoint_period % (epoch+1) == 0):
-        state = {
-            'state_dict': model.state_dict()
-        }
+
+        if bool(args.save_optim):
+            state = {
+                'state_dict': model.state_dict(),
+                'optimizer': optimizer.state_dict()
+            }
+
+        else:
+            state = {
+                'state_dict': model.state_dict()
+            }
         torch.save(state,
                    os.path.join(output_folder,
                                 f'{time_id}_pth'))
