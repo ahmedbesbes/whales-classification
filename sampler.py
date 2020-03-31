@@ -57,7 +57,7 @@ class PKSampler2(Sampler):
         self.data_source = data_source
         self.classes = classes
         self.labels_to_samples = labels_to_samples
-        self.mapping_files_to_global_id = mapping_files_to_global_ids
+        self.mapping_files_to_global_id = mapping_files_to_global_id
         self.mapping_filename_path = mapping_filename_path
 
     def __iter__(self):
