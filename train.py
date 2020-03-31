@@ -115,7 +115,7 @@ def main():
 
     data = pd.read_csv(args.data)
     if bool(args.pseudo_label):
-        bootstrapped_data = pd.read(
+        bootstrapped_data = pd.read_csv(
             '/data_science/computer_vision/whales/data/bootstrapped_data.csv')
         data = pd.concat([data, bootstrapped_data], axis=0)
         data['file_id'] = data.index.tolist()
