@@ -35,6 +35,7 @@ parser.add_argument(
 parser.add_argument(
     '--root-test', default='/data_science/computer_vision/whales/data/test_val/', type=str)
 parser.add_argument('--crop', type=int, default=1, choices=[0, 1])
+parser.add_argument('--pseudo-label', type=int, choices=[0, 1], default=0)
 
 parser.add_argument('--archi', default='resnet34',
                     choices=['resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnext',
@@ -113,6 +114,13 @@ def main():
     time_id, output_folder = log_experience(args)
 
     data = pd.read_csv(args.data)
+    if bool(args.pseudo_label):
+        bootstrapped_data = pd.read(
+            '/data_science/computer_vision/whales/data/bootstrapped_data.csv')
+        data = pd.concat([data, bootstrapped_data], axis=0)
+        data['file_id'] = data.index.tolist()
+
+    mapping_filename_path = dict(zip(data['filename'], data['full_path']))
     classes = data.folder.unique()
     mapping_label_id = dict(zip(classes, range(len(classes))))
 
@@ -184,6 +192,7 @@ def main():
                             classes=classes,
                             labels_to_samples=labels_to_samples,
                             mapping_files_to_global_id=mapping_files_to_global_id,
+                            mapping_filename_path=mapping_filename_path,
                             p=args.p,
                             k=args.k)
     elif args.sampler == 2:
@@ -192,6 +201,7 @@ def main():
                              classes=classes,
                              labels_to_samples=labels_to_samples,
                              mapping_files_to_global_id=mapping_files_to_global_id,
+                             mapping_filename_path=mapping_filename_path,
                              p=args.p,
                              k=args.k)
 
