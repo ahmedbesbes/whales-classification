@@ -75,12 +75,12 @@ def augmentation(image_size, train=True, heavy=False):
                     A.HueSaturationValue(hue_shift_limit=20, p=1),
                 ]),
 
-                A.OneOf([
-                    A.CLAHE(clip_limit=2),
-                    A.IAASharpen(),
-                    A.IAAEmboss(),
-                ],
-                    p=0.1),
+                # A.OneOf([
+                #     A.CLAHE(clip_limit=2),
+                #     A.IAASharpen(),
+                #     A.IAAEmboss(),
+                # ],
+                #     p=0.1),
 
                 A.IAAPerspective(p=0.3),
 
