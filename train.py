@@ -267,7 +267,7 @@ def main():
             scheduler = GradualWarmupScheduler(optimizer,
                                                multiplier=1,
                                                total_epoch=args.warmup_epochs,
-                                               after_schedule=scheduler_cosine
+                                               after_scheduler=scheduler_cosine
                                                )
     model.train()
 
