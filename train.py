@@ -13,8 +13,9 @@ from torch.optim import Adam, SGD
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision import transforms
-from torch.optim.lr_scheduler import MultiStepLR
+from torch.optim.lr_scheduler import MultiStepLR, CosineAnnealingLR
 from torch.utils.tensorboard import SummaryWriter
+from warmup_scheduler import GradualWarmupScheduler
 
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -34,6 +35,15 @@ parser.add_argument(
     '--root', default='/data_science/computer_vision/whales/data/new_data/train/', type=str)
 parser.add_argument(
     '--root-test', default='/data_science/computer_vision/whales/data/test_val/', type=str)
+parser.add_argument('--bbox-train', type=str,
+                    default='/data_science/computer_vision/whales/bounding_boxes/train_bbox.csv')
+parser.add_argument('--bbox-test', type=str,
+                    default='/data_science/computer_vision/whales/bounding_boxes/test_bbox.csv')
+parser.add_argument('--bbox-all', type=str,
+                    default='/data_science/computer_vision/whales/bounding_boxes/all_bbox.csv')
+parse.add_argument('--pseudo-labels', type=str,
+                   default="/data_science/computer_vision/whales/data/bootstrapped_data.csv")
+
 parser.add_argument('--crop', type=int, default=1, choices=[0, 1])
 parser.add_argument('--pseudo-label', type=int, choices=[0, 1], default=0)
 
@@ -49,21 +59,19 @@ parser.add_argument('--pretrained', type=int, choices=[0, 1], default=1)
 parser.add_argument('--image-size', type=int, default=224)
 parser.add_argument('--freeze', type=int, default=0, choices=[0, 1, 2])
 parser.add_argument('--gap', type=int, choices=[0, 1], default=1)
-parser.add_argument('--heavy', type=int, choices=[0, 1], default=0)
+parser.add_argument('--heavy', type=int, choices=[0, 1], default=1)
 
-parser.add_argument('--margin', type=float, default=0.2)
+parser.add_argument('--margin', type=float, default=-1)
 parser.add_argument('-p', type=int, default=16)
 parser.add_argument('-k', type=int, default=4)
-parser.add_argument('--sampler', type=int, default=1, choices=[1, 2])
+parser.add_argument('--sampler', type=int, default=2, choices=[1, 2])
 
-parser.add_argument('--lr', type=float, default=3e-4)
-parser.add_argument('--wd', type=float, default=0)
+parser.add_argument('--lr', type=float, default=2e-4)
+parser.add_argument('--wd', type=float, default=0.001)
 parser.add_argument('--epochs', type=int, default=80)
 parser.add_argument('--start-epoch', type=int, default=0)
 parser.add_argument('--batch-size', type=int, default=32)
 parser.add_argument('--num-workers', type=int, default=12)
-parser.add_argument('--gamma', type=float, default=0.1)
-parser.add_argument('--milestones', nargs='+', type=int)
 
 parser.add_argument('--logging-step', type=int, default=10)
 parser.add_argument('--output', type=str, default='./models/')
@@ -71,13 +79,7 @@ parser.add_argument('--submissions', type=str, default='./submissions/')
 parser.add_argument('--logs-experiences', type=str,
                     default='./experiences/')
 
-parser.add_argument('--bbox-train', type=str,
-                    default='/data_science/computer_vision/whales/bounding_boxes/train_bbox.csv')
-parser.add_argument('--bbox-test', type=str,
-                    default='/data_science/computer_vision/whales/bounding_boxes/test_bbox.csv')
-parser.add_argument('--bbox-all', type=str,
-                    default='/data_science/computer_vision/whales/bounding_boxes/all_bbox.csv')
-parser.add_argument('--checkpoint', type=str, default=None)
+
 parser.add_argument('--weights', type=str, default=None)
 parser.add_argument('--flush', type=int, choices=[0, 1], default=1)
 parser.add_argument('--log_path', type=str, default='./logs/')
@@ -87,10 +89,17 @@ parser.add_argument('--load-optim', type=int, default=0, choices=[0, 1])
 
 parser.add_argument('--checkpoint-period', type=int, default=-1)
 
-parser.add_argument('--clr', action='store_true')
+
+parser.add_argument('--scheduler', type=str,
+                    choices=['multistep', 'clr', 'warmup'])
 parser.add_argument('--min-lr', type=float, default=2.4e-6)
 parser.add_argument('--max-lr', type=float, default=1.4e-5)
 parser.add_argument('--step-size', type=int, default=4)
+parser.add_argument('--gamma', type=float, default=0.1)
+parser.add_argument('--milestones', nargs='+', type=int)
+parser.add_argument('--lr-end', type=float, default=None)
+parser.add_argument('--warmup-epoch', type=int, default=2)
+
 
 np.random.seed(0)
 torch.manual_seed(0)
@@ -115,8 +124,7 @@ def main():
 
     data = pd.read_csv(args.data)
     if bool(args.pseudo_label):
-        bootstrapped_data = pd.read_csv(
-            '/data_science/computer_vision/whales/data/bootstrapped_data.csv')
+        bootstrapped_data = pd.read_csv(args.pseudo_labels)
         data = pd.concat([data, bootstrapped_data], axis=0)
         data['file_id'] = data.index.tolist()
 
@@ -143,27 +151,21 @@ def main():
         'gap': args.gap
     }
 
-    if args.checkpoint is not None:
-        model = model_factory.get_model(**model_params)
-        weights = torch.load(args.checkpoint)
-        model.load_state_dict(weights)
-        print('loading saved model ...')
-    else:
-        model = model_factory.get_model(**model_params)
-        if args.weights is not None:
-            print('loading pre-trained weights and changing input size ...')
-            weights = torch.load(args.weights)
-            if 'state_dict' in weights.keys():
-                weights = weights['state_dict']
+    model = model_factory.get_model(**model_params)
+    if args.weights is not None:
+        print('loading pre-trained weights and changing input size ...')
+        weights = torch.load(args.weights)
+        if 'state_dict' in weights.keys():
+            weights = weights['state_dict']
 
-            weights.pop('model.fc.weight')
-            weights.pop('model.fc.bias')
-            try:
-                weights.pop('model.classifier.weight')
-                weights.pop('model.classifier.bias')
-            except:
-                print('no classifier. skipping.')
-            model.load_state_dict(weights, strict=False)
+        weights.pop('model.fc.weight')
+        weights.pop('model.fc.bias')
+        try:
+            weights.pop('model.classifier.weight')
+            weights.pop('model.classifier.bias')
+        except:
+            print('no classifier. skipping.')
+        model.load_state_dict(weights, strict=False)
 
     model.to(device)
 
@@ -211,31 +213,62 @@ def main():
                             drop_last=True,
                             num_workers=args.num_workers)
 
+   # define loss
+
     if args.margin == -1:
         criterion = TripletLoss(margin='soft', sample=False)
     else:
         criterion = TripletLoss(margin=args.margin, sample=False)
 
-    if args.clr:
-        print('using learning rate scheduling ...')
+    # define scheduler
+
+    if args.scheduler == 'clr':
+        print('Using cyclic learning rate scheduler')
+        print(
+            f'Step size: {args.step_size} | min_lr: {args.min_lr} | max_lr: {args.max_lr}')
         optimizer = Adam(model.parameters(), lr=1, weight_decay=args.wd)
         step_size = int(len(dataloader) * args.step_size)
         clr = cyclical_lr(step_size,
                           args.min_lr,
                           args.max_lr)
         scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, [clr])
+
     else:
+        # define / load optimizer
+
         if (args.weights is not None) & (bool(args.load_optim)):
             optimizer = torch.load(args.weights)['optimizer']
         else:
-            optimizer = Adam(model.parameters(),
+            parameters = filter(lambda p: p.requires_grad, model.parameters())
+            optimizer = Adam(parameters,
                              lr=args.lr,
                              weight_decay=args.wd)
 
-        scheduler = MultiStepLR(optimizer,
-                                milestones=args.milestones,
-                                gamma=args.gamma)
+        # multi step
 
+        if args.scheduler == 'multistep':
+            print('Using multistep scheduler')
+            print(f'gamma: {args.gamma} | milestone: {args.milestones}')
+            scheduler = MultiStepLR(optimizer,
+                                    milestones=args.milestones,
+                                    gamma=args.gamma)
+
+        # warmp + cosine annealing
+
+        elif args.scheduler == 'warmup':
+            print(f'Using warmup scheduler with cosine annealing')
+            print(
+                f'warmup epochs : {args.warmup_epochs} | total epochs {args.epochs}')
+            print(f'lr_start : {args.lr} ---> lr_end : {args.lr}')
+
+            scheduler_cosine = CosineAnnealingLR(optimizer,
+                                                 args.epochs,
+                                                 eta_min=args.lr_end)
+            scheduler = GradualWarmupScheduler(optimizer,
+                                               multiplier=1,
+                                               total_epochs=args.warmup_epochs,
+                                               after_schedule=scheduler_cosine
+                                               )
     model.train()
 
     for epoch in tqdm(range(args.start_epoch, args.epochs + args.start_epoch)):
@@ -254,7 +287,7 @@ def main():
         }
         _ = train(**params)
 
-        if not args.clr:
+        if args.scheduler in ['multistep', 'warmup']:
             scheduler.step()
 
     if bool(args.save_optim):
@@ -286,7 +319,7 @@ def train(model, dataloader, optimizer, criterion, logging_step, epoch, epochs, 
 
         loss.backward()
 
-        if args.clr:
+        if args.scheduler == 'clr':
             scheduler.step()
 
         current_lr = get_lr(optimizer)

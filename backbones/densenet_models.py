@@ -9,12 +9,14 @@ class DenseNetModels(nn.Module):
         if archi == "densenet121":
             self.model = densenet121(pretrained=pretrained)
         self.embedding_dim = embedding_dim
+        self.gap = gap
         self.output_conv = self._get_output_conv(
             (1, 3, image_size, image_size))
         self.model.fc = nn.Linear(self.output_conv, self.embedding_dim)
         self.model.classifier = nn.Linear(self.embedding_dim, num_classes)
         self.dropout = nn.Dropout(p=dropout)
         self.alpha = alpha
+        self.pooling_layer = nn.AdaptiveAvgPool2d(1)
 
     def l2_norm(self, input):
         input_size = input.size()
@@ -27,10 +29,17 @@ class DenseNetModels(nn.Module):
 
     def forward(self, x):
         x = self.model.features(x)
-        x = x.view(x.size(0), -1)
-        x = self.dropout(x)
+        if self.gap == 1:
+            x = self.pooling_layer(x)
+            x = x.view(x.size(0), -1)
+
+        elif self.gap == 0:
+            x = x.view(x.size(0), -1)
+            x = self.dropout(x)
+
         x = self.model.fc(x)
         self.features = self.l2_norm(x)
+
         # Multiply by alpha = 10 as suggested in https://arxiv.org/pdf/1703.09507.pdf
         self.features = self.features * self.alpha
         return self.features
@@ -43,6 +52,9 @@ class DenseNetModels(nn.Module):
     def _get_output_conv(self, shape):
         x = torch.rand(shape)
         x = self.model.features(x)
-        x = x.view(x.size(0), -1)
-        output_conv_shape = x.size(1)
+        if self.gap == 1:
+            output_conv_shape = x.size(1)
+        elif self.gap == 0:
+            x = x.view(x.size(0), -1)
+            output_conv_shape = x.size(1)
         return output_conv_shape
