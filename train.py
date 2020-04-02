@@ -41,7 +41,7 @@ parser.add_argument('--bbox-test', type=str,
                     default='/data_science/computer_vision/whales/bounding_boxes/test_bbox.csv')
 parser.add_argument('--bbox-all', type=str,
                     default='/data_science/computer_vision/whales/bounding_boxes/all_bbox.csv')
-parse.add_argument('--pseudo-labels', type=str,
+parser.add_argument('--pseudo-labels', type=str,
                    default="/data_science/computer_vision/whales/data/bootstrapped_data.csv")
 
 parser.add_argument('--crop', type=int, default=1, choices=[0, 1])
