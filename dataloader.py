@@ -86,7 +86,7 @@ def augmentation(image_size, train=True, heavy=False):
 
                 A.IAAAffine(scale=0.9,
                             translate_px=15,
-                            rotate=15,
+                            rotate=20,
                             shear=0.2,
                             p=1),
 

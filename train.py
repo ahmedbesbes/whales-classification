@@ -366,7 +366,7 @@ def compute_predictions(model, mapping_label_id, time_id, output_folder):
     model.eval()
     print("generating predictions ......")
     db = []
-    train_folder = os.path.join(args.root)
+    train_folder = args.root
     for c in os.listdir(train_folder):
         for f in os.listdir(os.path.join(train_folder, c)):
             db.append(os.path.join(train_folder, c, f))
