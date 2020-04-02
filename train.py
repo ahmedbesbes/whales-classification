@@ -259,7 +259,7 @@ def main():
             print(f'Using warmup scheduler with cosine annealing')
             print(
                 f'warmup epochs : {args.warmup_epochs} | total epochs {args.epochs}')
-            print(f'lr_start : {args.lr} ---> lr_end : {args.lr}')
+            print(f'lr_start : {args.lr} ---> lr_end : {args.lr_end}')
 
             scheduler_cosine = CosineAnnealingLR(optimizer,
                                                  args.epochs,
