@@ -75,12 +75,12 @@ def augmentation(image_size, train=True, heavy=False):
                     A.HueSaturationValue(hue_shift_limit=20, p=1),
                 ]),
 
-                # A.OneOf([
-                #     A.CLAHE(clip_limit=2),
-                #     A.IAASharpen(),
-                #     A.IAAEmboss(),
-                # ],
-                #     p=0.1),
+                A.OneOf([
+                    A.CLAHE(clip_limit=2),
+                    A.IAASharpen(),
+                    A.IAAEmboss(),
+                ],
+                    p=0.1),
 
                 A.IAAPerspective(p=0.3),
 
@@ -90,7 +90,7 @@ def augmentation(image_size, train=True, heavy=False):
                             shear=0.2,
                             p=1),
 
-                #A.Cutout(num_holes=1, max_h_size=100, max_w_size=200, p=0.2),
+                A.Cutout(num_holes=1, max_h_size=100, max_w_size=200, p=0.2),
 
                 A.Resize(image_size, image_size),
                 A.Normalize(mean=[0.485, 0.456, 0.406],
