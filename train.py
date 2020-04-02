@@ -42,7 +42,7 @@ parser.add_argument('--bbox-test', type=str,
 parser.add_argument('--bbox-all', type=str,
                     default='/data_science/computer_vision/whales/bounding_boxes/all_bbox.csv')
 parser.add_argument('--pseudo-labels', type=str,
-                   default="/data_science/computer_vision/whales/data/bootstrapped_data.csv")
+                    default="/data_science/computer_vision/whales/data/bootstrapped_data.csv")
 
 parser.add_argument('--crop', type=int, default=1, choices=[0, 1])
 parser.add_argument('--pseudo-label', type=int, choices=[0, 1], default=0)
@@ -98,7 +98,7 @@ parser.add_argument('--step-size', type=int, default=4)
 parser.add_argument('--gamma', type=float, default=0.1)
 parser.add_argument('--milestones', nargs='+', type=int)
 parser.add_argument('--lr-end', type=float, default=None)
-parser.add_argument('--warmup-epoch', type=int, default=2)
+parser.add_argument('--warmup-epochs', type=int, default=2)
 
 
 np.random.seed(0)
