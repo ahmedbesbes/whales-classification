@@ -42,7 +42,7 @@ class WhalesData(Dataset):
         else:
             img = self.transform(img)
 
-        if self.test == False:
+        if (self.test == False) & ('test' not in path):
             folder = path.split('/')[-2]
             label = self.mapping_label_id[folder]
             sample = {
