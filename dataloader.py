@@ -90,9 +90,11 @@ def augmentation(image_size, train=True, heavy=False):
                             shear=0.2,
                             p=1),
 
-                A.Cutout(num_holes=1, max_h_size=100, max_w_size=200, p=0.2),
+                #A.Cutout(num_holes=1, max_h_size=100, max_w_size=200, p=0.2),
 
                 A.Resize(image_size, image_size),
+                A.Cutout(num_holes=1, max_h_size=50, max_w_size=50, p=0.2),
+
                 A.Normalize(mean=[0.485, 0.456, 0.406],
                             std=[0.229, 0.224, 0.225]),
                 AT.ToTensor()
