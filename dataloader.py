@@ -26,7 +26,7 @@ class WhalesData(Dataset):
 
         img = io.imread(path)
         if self.crop:
-            if path in self.bbox:
+            if (path in self.bbox) & ('test' not in path):
                 x = int(self.bbox[path]['x'])
                 y = int(self.bbox[path]['y'])
                 w = int(self.bbox[path]['w'])
@@ -42,7 +42,7 @@ class WhalesData(Dataset):
         else:
             img = self.transform(img)
 
-        if (self.test == False) & ('test' not in path):
+        if self.test == False:
             folder = path.split('/')[-2]
             label = self.mapping_label_id[folder]
             sample = {
