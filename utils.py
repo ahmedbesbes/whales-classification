@@ -33,12 +33,15 @@ def expand2square(pil_img):
         return result
 
 
-def log_experience(args):
+def log_experience(args, data_transform):
+
+    data_transform_repr = data_transform.indented_repr()
     arguments = vars(args)
     time_id = str(datetime.now())
     arguments['date'] = time_id
     arguments['leaderboard_score'] = None
     arguments['tag'] = args.tag
+    arguments['_augmentation'] = data_transform_repr
 
     print('logging these arguments for the experience ...')
     pprint(arguments)

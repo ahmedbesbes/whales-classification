@@ -120,7 +120,11 @@ def main():
     os.makedirs(logdir)
     writer = SummaryWriter(logdir)
 
-    time_id, output_folder = log_experience(args)
+    data_transform = augmentation(args.image_size,
+                                  train=True,
+                                  heavy=bool(args.heavy))
+
+    time_id, output_folder = log_experience(args, data_transform)
 
     data = pd.read_csv(args.data)
     if bool(args.pseudo_label):
@@ -179,9 +183,6 @@ def main():
         for param in model.model.layer2.parameters():
             param.requires_grad = False
 
-    data_transform = augmentation(args.image_size,
-                                  train=True,
-                                  heavy=bool(args.heavy))
     dataset = WhalesData(paths=paths,
                          bbox=args.bbox_train,
                          mapping_label_id=mapping_label_id,
