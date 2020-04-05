@@ -1,5 +1,7 @@
 import pandas as pd
+import numpy as np
 from skimage import io
+from PIL import Image
 from torch.utils.data import Dataset
 from torchvision import transforms
 from utils import expand2square
@@ -24,7 +26,9 @@ class WhalesData(Dataset):
     def __getitem__(self, i):
         path = self.paths[i]
 
-        img = io.imread(path)
+        # img = io.imread(path)
+        img = Image.open(path)
+        img = np.array(img)
         if self.crop:
             if (path in self.bbox) & ('test' not in path):
                 x = int(self.bbox[path]['x'])
