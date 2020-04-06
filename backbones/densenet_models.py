@@ -12,8 +12,7 @@ class DenseNetModels(nn.Module):
         self.gap = gap
         self.output_conv = self._get_output_conv(
             (1, 3, image_size, image_size))
-        self.model.fc = nn.Linear(self.output_conv, self.embedding_dim)
-        self.model.classifier = nn.Linear(self.embedding_dim, num_classes)
+        self.model.classifier = nn.Linear(self.output_conv, self.embedding_dim)
         self.dropout = nn.Dropout(p=dropout)
         self.alpha = alpha
         self.pooling_layer = nn.AdaptiveAvgPool2d(1)
@@ -37,17 +36,12 @@ class DenseNetModels(nn.Module):
             x = x.view(x.size(0), -1)
             x = self.dropout(x)
 
-        x = self.model.fc(x)
+        x = self.model.classifier(x)
         self.features = self.l2_norm(x)
 
         # Multiply by alpha = 10 as suggested in https://arxiv.org/pdf/1703.09507.pdf
         self.features = self.features * self.alpha
         return self.features
-
-    def forward_classifier(self, x):
-        features = self.forward(x)
-        res = self.model.classifier(features)
-        return res
 
     def _get_output_conv(self, shape):
         x = torch.rand(shape)

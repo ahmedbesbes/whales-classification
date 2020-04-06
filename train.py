@@ -161,14 +161,15 @@ def main():
         weights = torch.load(args.weights)
         if 'state_dict' in weights.keys():
             weights = weights['state_dict']
+        if args.archi != 'densenet121':
+            weights.pop('model.fc.weight')
+            weights.pop('model.fc.bias')
 
-        weights.pop('model.fc.weight')
-        weights.pop('model.fc.bias')
-        try:
-            weights.pop('model.classifier.weight')
-            weights.pop('model.classifier.bias')
-        except:
-            print('no classifier. skipping.')
+            try:
+                weights.pop('model.classifier.weight')
+                weights.pop('model.classifier.bias')
+            except:
+                print('no classifier. skipping.')
         model.load_state_dict(weights, strict=False)
 
     model.to(device)
