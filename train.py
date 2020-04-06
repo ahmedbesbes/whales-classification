@@ -81,6 +81,7 @@ parser.add_argument('--logs-experiences', type=str,
 
 
 parser.add_argument('--weights', type=str, default=None)
+parser.add_argument('--pop-fc', type=int, default=1)
 parser.add_argument('--flush', type=int, choices=[0, 1], default=1)
 parser.add_argument('--log_path', type=str, default='./logs/')
 parser.add_argument('--tag', type=str, default='')
@@ -162,8 +163,10 @@ def main():
         if 'state_dict' in weights.keys():
             weights = weights['state_dict']
         if args.archi != 'densenet121':
-            weights.pop('model.fc.weight')
-            weights.pop('model.fc.bias')
+
+            if bool(args.pop_fc):
+                weights.pop('model.fc.weight')
+                weights.pop('model.fc.bias')
 
             try:
                 weights.pop('model.classifier.weight')
