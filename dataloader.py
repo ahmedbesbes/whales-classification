@@ -61,6 +61,7 @@ class WhalesData(Dataset):
 
 
 def augmentation(image_size, train=True, heavy=False):
+    max_crop = image_size // 10
     if train:
         if heavy:
             data_transform = A.Compose([
@@ -97,7 +98,8 @@ def augmentation(image_size, train=True, heavy=False):
                 #A.Cutout(num_holes=1, max_h_size=100, max_w_size=200, p=0.2),
 
                 A.Resize(image_size, image_size),
-                A.Cutout(num_holes=1, max_h_size=50, max_w_size=50, p=0.2),
+                A.Cutout(num_holes=1, max_h_size=max_crop,
+                         max_w_size=max_crop, p=0.2),
 
                 A.Normalize(mean=[0.485, 0.456, 0.406],
                             std=[0.229, 0.224, 0.225]),
