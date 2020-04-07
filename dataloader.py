@@ -85,7 +85,7 @@ def augmentation(image_size, train=True, heavy=False):
                     A.IAASharpen(),
                     A.IAAEmboss(),
                 ],
-                    p=0.2),
+                    p=0.1),
 
                 A.IAAPerspective(p=0.3),
 
