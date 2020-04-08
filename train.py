@@ -317,7 +317,10 @@ def train(model, dataloader, optimizer, criterion, logging_step, epoch, epochs, 
 
     for i, batch in tqdm(enumerate(dataloader), total=len(dataloader), leave=False):
         images = batch['image']
+        if np.random.rand() > 0.5:
+            images = torch.flip(images, [-1])
         targets = batch['label']
+
         predictions = model(images.cuda())
         optimizer.zero_grad()
         loss = criterion(predictions, targets.cuda())
