@@ -159,6 +159,7 @@ def main():
                         data_files,
                         model,
                         mapping_label_id,
+                        mapping_pseudo_files_folders,
                         time_id,
                         output_folder)
 

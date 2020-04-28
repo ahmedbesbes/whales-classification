@@ -240,7 +240,7 @@ def get_sampler(args,
 # utility function to generate a submission file
 
 
-def compute_predictions(args, data_files, model, mapping_label_id, time_id, output_folder):
+def compute_predictions(args, data_files, model, mapping_label_id, mapping_pseudo_files_folders, time_id, output_folder):
     model.eval()
     print("generating predictions ......")
     db = []
@@ -258,6 +258,7 @@ def compute_predictions(args, data_files, model, mapping_label_id, time_id, outp
     scoring_dataset = WhalesData(db,
                                  data_files['bbox_all'],
                                  mapping_label_id,
+                                 mapping_pseudo_files_folders,
                                  data_transform_test,
                                  crop=bool(args.crop),
                                  test=True)
