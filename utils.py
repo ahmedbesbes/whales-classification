@@ -266,7 +266,7 @@ def compute_predictions(args, data_files, model, mapping_label_id, mapping_pseud
     scoring_dataloader = DataLoader(scoring_dataset,
                                     shuffle=False,
                                     num_workers=11,
-                                    batch_size=args.p * args.k)
+                                    batch_size=args.batch_size)
 
     embeddings = []
     for batch in tqdm(scoring_dataloader, total=len(scoring_dataloader)):
@@ -283,13 +283,14 @@ def compute_predictions(args, data_files, model, mapping_label_id, mapping_pseud
     test_dataset = WhalesData(test_db,
                               data_files['bbox_test'],
                               mapping_label_id,
+                              mapping_pseudo_files_folders,
                               data_transform_test,
                               crop=bool(args.crop),
                               test=True)
     test_dataloader = DataLoader(test_dataset,
                                  num_workers=11,
                                  shuffle=False,
-                                 batch_size=args.p * args.k)
+                                 batch_size=batch_size)
 
     test_embeddings = []
     for batch in tqdm(test_dataloader, total=len(test_dataloader)):
