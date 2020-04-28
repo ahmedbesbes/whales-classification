@@ -290,7 +290,7 @@ def compute_predictions(args, data_files, model, mapping_label_id, mapping_pseud
     test_dataloader = DataLoader(test_dataset,
                                  num_workers=11,
                                  shuffle=False,
-                                 batch_size=batch_size)
+                                 batch_size=args.batch_size)
 
     test_embeddings = []
     for batch in tqdm(test_dataloader, total=len(test_dataloader)):
