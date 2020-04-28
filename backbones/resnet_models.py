@@ -6,7 +6,7 @@ import pretrainedmodels
 
 
 class ResNetModels(nn.Module):
-    def __init__(self, embedding_size, num_classes, image_size, archi, pretrained=True, dropout=0.4):
+    def __init__(self, embedding_dim, num_classes, image_size, archi, pretrained=True, dropout=0.4):
         super(ResNetModels, self).__init__()
         self.archi = archi
         if self.archi == "resnet18":
@@ -29,13 +29,13 @@ class ResNetModels(nn.Module):
                 num_classes=1000, pretrained='imagenet')
 
         self.pooling_layer = nn.AdaptiveAvgPool2d(1)
-        self.embedding_size = embedding_size
+        self.embedding_dim = embedding_dim
         self.output_conv = self._get_output_conv(
             (1, 3, image_size, image_size))
-        self.model.fc = nn.Linear(self.output_conv, self.embedding_size)
-        self.model.classifier = nn.Linear(self.embedding_size, num_classes)
+        self.model.fc = nn.Linear(self.output_conv, self.embedding_dim)
+        self.model.classifier = nn.Linear(self.embedding_dim, num_classes)
         self.dropout = nn.Dropout(p=dropout)
-        self.bn = nn.BatchNorm1d(self.embedding_size)
+        self.bn = nn.BatchNorm1d(self.embedding_dim)
 
     def forward(self, x):
         if self.archi not in ["se_resnet34", "se_resnext50_32x4d"]:
