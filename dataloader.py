@@ -62,7 +62,7 @@ class WhalesData(Dataset):
 def augmentation(image_size, train=True):
     max_crop = image_size // 5
     if train:
-        A.Compose([
+        data_transform = A.Compose([
             A.Resize(image_size, image_size),
             A.Compose(
                 [
