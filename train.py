@@ -53,6 +53,8 @@ def main():
         print(f'using {len(pseudo_labels)} pseudo labels !')
         data = pd.concat(
             [data, pseudo_labels[['folder', 'full_path']]], axis=0, sort=False)
+    else:
+        mapping_pseudo_files_folders = None
 
     data.reset_index(inplace=True, drop=True)
     data['file_id'] = data.index.tolist()
