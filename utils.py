@@ -222,8 +222,8 @@ def get_sampler(args,
                                        labels_to_samples=labels_to_samples,
                                        mapping_files_to_global_id=mapping_files_to_global_id,
                                        mapping_filename_path=mapping_filename_path,
-                                       p=args.p,
-                                       k=args.k)
+                                       p=args['p'],
+                                       k=args['k'])
 
     elif args['sampler'] == 2:
         sampler = pk_sample_full_coverage_epoch.PKSampler(root=data_files['root'],
@@ -232,8 +232,8 @@ def get_sampler(args,
                                                           labels_to_samples=labels_to_samples,
                                                           mapping_files_to_global_id=mapping_files_to_global_id,
                                                           mapping_filename_path=mapping_filename_path,
-                                                          p=args.p,
-                                                          k=args.k)
+                                                          p=args['p'],
+                                                          k=args['k'])
 
     return sampler
 
