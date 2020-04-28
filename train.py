@@ -176,7 +176,7 @@ def train(model, dataloader, optimizer, criterion, logging_step, epoch, epochs, 
         output = criterion(features, targets)
         loss_arcface = nn.CrossEntropyLoss()(output, targets)
 
-        loss_ce = nn.CrossEntropyLoss(logits, targets)
+        loss_ce = nn.CrossEntropyLoss()(logits, targets)
         loss = loss_arcface + loss_ce
 
         optimizer.zero_grad()
