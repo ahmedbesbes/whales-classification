@@ -73,13 +73,13 @@ def parse_arguments():
     parser.add_argument('--checkpoint-period', type=int, default=-1)
 
     parser.add_argument('--scheduler', type=str,
-                        choices=['multistep', 'clr', 'warmup'])
+                        choices=['multistep', 'cosine', 'warmup'], default='warmup')
     parser.add_argument('--min-lr', type=float, default=2.4e-6)
     parser.add_argument('--max-lr', type=float, default=1.4e-5)
     parser.add_argument('--step-size', type=int, default=4)
     parser.add_argument('--gamma', type=float, default=0.1)
     parser.add_argument('--milestones', nargs='+', type=int)
-    parser.add_argument('--lr-end', type=float, default=None)
+    parser.add_argument('--lr-end', type=float, default=1e-6)
     parser.add_argument('--warmup-epochs', type=int, default=2)
 
     args = parser.parse_args()
