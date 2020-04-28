@@ -4,7 +4,6 @@ from skimage import io
 from PIL import Image
 from torch.utils.data import Dataset
 from torchvision import transforms
-from utils import expand2square
 import albumentations as A
 import albumentations.pytorch as AT
 
