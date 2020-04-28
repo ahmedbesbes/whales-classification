@@ -46,20 +46,14 @@ class WhalesData(Dataset):
         else:
             img = self.transform(img)
 
-        if 'test' not in path:
-            folder = path.split('/')[-2]
-            try:
-                label = self.mapping_label_id[folder]
-            except Exception as e:
-                print("exception : ", e)
-                print('path :', path)
-        else:
-            folder = self.mapping_pseudo_files_folders[path]
-            label = self.mapping_label_id[folder]
-
         if self.test == False:
-            folder = path.split('/')[-2]
-            label = self.mapping_label_id[folder]
+            if 'test' not in path:
+                folder = path.split('/')[-2]
+                label = self.mapping_label_id[folder]
+            else:
+                folder = self.mapping_pseudo_files_folders[path]
+                label = self.mapping_label_id[folder]
+
             sample = {
                 'image': img,
                 'label': label
