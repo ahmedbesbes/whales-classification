@@ -8,8 +8,7 @@ def get_model(embedding_dim,
               dropout,
               image_size,
               archi,
-              alpha,
-              gap):
+              alpha):
 
     if archi.startswith('resnet') | archi.startswith('resnext'):
         model = ResNetModels(embedding_dim=embedding_dim,
