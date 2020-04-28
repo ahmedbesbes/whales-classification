@@ -9,12 +9,13 @@ import albumentations.pytorch as AT
 
 
 class WhalesData(Dataset):
-    def __init__(self, paths, bbox, mapping_label_id, transform, crop=False, test=False):
+    def __init__(self, paths, bbox, mapping_label_id, mapping_pseudo_files_folders, transform, crop=False, test=False):
         self.paths = paths
         self.bbox = pd.read_csv(bbox)
         self.bbox.set_index('new_path', inplace=True)
         self.bbox = self.bbox.to_dict(orient='index')
         self.mapping_label_id = mapping_label_id
+        self.mapping_pseudo_files_folders = mapping_pseudo_files_folders
         self.transform = transform
         self.test = test
         self.crop = crop
@@ -44,6 +45,13 @@ class WhalesData(Dataset):
             img = self.transform(image=img)['image']
         else:
             img = self.transform(img)
+
+        if 'test' not in path:
+            folder = path.split('/')[-2]
+            label = self.mapping_label_id[folder]
+        else:
+            folder = self.mapping_pseudo_files_folders[path]
+            label = self.mapping_label_id[folder]
 
         if self.test == False:
             folder = path.split('/')[-2]

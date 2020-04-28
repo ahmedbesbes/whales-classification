@@ -30,7 +30,8 @@ def parse_arguments():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--crop', type=int, default=1, choices=[0, 1])
-    parser.add_argument('--pseudo-label', type=int, choices=[0, 1], default=0)
+    parser.add_argument('--use-pseudo-labels', type=int,
+                        choices=[0, 1], default=0)
 
     parser.add_argument('--archi', default='resnet34',
                         choices=['resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnext',
@@ -42,7 +43,6 @@ def parse_arguments():
     parser.add_argument('--alpha', type=int, default=8)
     parser.add_argument('--pretrained', type=int, choices=[0, 1], default=1)
     parser.add_argument('--image-size', type=int, default=224)
-    parser.add_argument('--gap', type=int, choices=[0, 1], default=1)
 
     parser.add_argument('--margin', type=float, default=-1)
     parser.add_argument('-p', type=int, default=16)
@@ -68,7 +68,6 @@ def parse_arguments():
     parser.add_argument('--log_path', type=str, default='./logs/')
     parser.add_argument('--tag', type=str, default='')
     parser.add_argument('--save-optim', type=int, default=0, choices=[0, 1])
-    parser.add_argument('--load-optim', type=int, default=0, choices=[0, 1])
 
     parser.add_argument('--checkpoint-period', type=int, default=-1)
 

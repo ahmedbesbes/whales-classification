@@ -27,6 +27,7 @@ from utils import (get_lr, set_lr, log_experience, parse_config,
                    get_scheduler, get_sampler, parse_arguments,
                    compute_predictions, get_summary_writer)
 from losses.triplet_loss import TripletLoss
+from losses.arcface import ArcMarginProduct
 
 
 args = parse_arguments()
@@ -44,20 +45,22 @@ def main():
     time_id, output_folder = log_experience(args, data_transform)
 
     data = pd.read_csv(data_files['data'])
-    if bool(args.pseudo_label):
-        bootstrapped_data = pd.read_csv(data_files['pseudo_labels'])
-        data = pd.concat([data, bootstrapped_data], axis=0)
-        data['file_id'] = data.index.tolist()
+    if bool(args.use_pseudo_labels):
+        pseudo_labels = pd.read_csv(data_files['pseudo_labels'])
+        pseudo_labels = pseudo_labels[pseudo_labels['proba'] > 0.9]
+        mapping_pseudo_files_folders = dict(
+            zip(pseudo_labels['full_path'], pseudo_labels['folder']))
+        print(f'using {len(pseudo_labels)} pseudo labels !')
+        data = pd.concat(
+            [data, pseudo_labels[['folder', 'full_path']]], axis=0, sort=False)
 
-    mapping_filename_path = dict(zip(data['filename'], data['full_path']))
+    data.reset_index(inplace=True, drop=True)
+    data['file_id'] = data.index.tolist()
+
     classes = data.folder.unique()
     mapping_label_id = dict(zip(classes, range(len(classes))))
-
     num_classes = data.folder.nunique()
-    mapping_files_to_global_id = dict(
-        zip(data.full_path.tolist(), data.file_id.tolist()))
     paths = data.full_path.tolist()
-    labels_to_samples = data.groupby('folder').agg(list)['filename'].to_dict()
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
@@ -68,8 +71,7 @@ def main():
         'archi': args.archi,
         'pretrained': bool(args.pretrained),
         'dropout': args.dropout,
-        'alpha': args.alpha,
-        'gap': args.gap
+        'alpha': args.alpha
     }
 
     model = model_factory.get_model(**model_params)
@@ -96,39 +98,28 @@ def main():
     dataset = WhalesData(paths=paths,
                          bbox=data_files['bbox_train'],
                          mapping_label_id=mapping_label_id,
+                         mapping_pseudo_files_folders=mapping_pseudo_files_folders,
                          transform=data_transform,
                          crop=bool(args.crop))
 
-    sampler = get_sampler(args,
-                          data_files,
-                          dataset,
-                          classes,
-                          labels_to_samples,
-                          mapping_files_to_global_id,
-                          mapping_filename_path)
-
     dataloader = DataLoader(dataset,
-                            batch_size=args.p*args.k,
-                            sampler=sampler,
+                            batch_size=args.batch_size,
+                            shuffle=True,
                             drop_last=True,
                             num_workers=args.num_workers)
 
    # define loss
 
-    if args.margin == -1:
-        criterion = TripletLoss(margin='soft', sample=False)
-    else:
-        criterion = TripletLoss(margin=args.margin, sample=False)
+    arcface_loss = ArcMarginProduct(args.embedding_dim, num_classes)
+    arcface_loss.to(device)
 
     # define optimizer
 
-    if (args.weights is not None) & (bool(args.load_optim)):
-        optimizer = torch.load(args.weights)['optimizer']
-    else:
-        parameters = filter(lambda p: p.requires_grad, model.parameters())
-        optimizer = Adam(parameters,
-                         lr=args.lr,
-                         weight_decay=args.wd)
+    parameters = filter(lambda p: p.requires_grad, model.parameters())
+    optimizer = Adam([{'params': parameters},
+                      {'params': arcface_loss.parameters()}],
+                     lr=args.lr,
+                     weight_decay=args.wd)
 
     # define scheduler
 
@@ -142,7 +133,7 @@ def main():
             'model': model,
             'dataloader': dataloader,
             'optimizer': optimizer,
-            'criterion': criterion,
+            'criterion': arcface_loss,
             'logging_step': args.logging_step,
             'epoch': epoch,
             'epochs': args.epochs,
@@ -175,19 +166,19 @@ def train(model, dataloader, optimizer, criterion, logging_step, epoch, epochs, 
     losses = []
 
     for i, batch in tqdm(enumerate(dataloader), total=len(dataloader), leave=False):
-        images = batch['image']
-        if np.random.rand() > 0.5:
-            images = torch.flip(images, [-1])
-        targets = batch['label']
+        images = batch['image'].cuda()
+        targets = batch['label'].cuda()
 
-        predictions = model(images.cuda())
+        features, logits = model.forward_classifier(images)
+
+        output = criterion(features, targets)
+        loss_arcface = nn.CrossEntropyLoss()(output, targets)
+
+        loss_ce = nn.CrossEntropyLoss(logits, targets)
+        loss = loss_arcface + loss_ce
+
         optimizer.zero_grad()
-        loss = criterion(predictions, targets.cuda())
-
         loss.backward()
-
-        if args.scheduler == 'clr':
-            scheduler.step()
 
         current_lr = get_lr(optimizer)
 
