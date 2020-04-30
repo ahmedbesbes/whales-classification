@@ -8,6 +8,8 @@ import albumentations as A
 import albumentations.pytorch as AT
 
 
+# PyTorch Dataset
+
 class WhalesData(Dataset):
     def __init__(self, paths, bbox, mapping_label_id, mapping_pseudo_files_folders, transform, crop=False, test=False):
         self.paths = paths
@@ -25,8 +27,6 @@ class WhalesData(Dataset):
 
     def __getitem__(self, i):
         path = self.paths[i]
-
-        # img = io.imread(path)
         img = Image.open(path)
         img = np.array(img)
         if self.crop:
@@ -64,6 +64,8 @@ class WhalesData(Dataset):
             }
         return sample
 
+
+# augmentation pipeline for both train and test
 
 def augmentation(image_size, train=True):
     max_crop = image_size // 5
