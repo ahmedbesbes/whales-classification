@@ -2,6 +2,8 @@ My solution of Global Data Science Game 2020
 
 This repository contains the code I used to train the models and the following post details the approach undertaken.
 
+More details about project [here](https://medium.com/@ahmedbesbes/a-hackers-guide-to-efficiently-train-deep-learning-models-b2cccbd1bc0a)
+
 ### Requirements
 
 ##### Libraries
